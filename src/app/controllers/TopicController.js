@@ -63,14 +63,22 @@ class TopicController {
     });
 
     const groupTopics = await Group.findByPk(group_id, {
-      include: {
-        association: 'topics',
-        attributes: ['id', 'name', 'is_closed', 'createdAt', 'updatedAt'],
-        include: {
-          association: 'author',
-          attributes: ['id', 'name'],
+      include: [
+        {
+          association: 'topics',
+          attributes: ['id', 'name', 'is_closed', 'createdAt', 'updatedAt'],
+          include: [
+            {
+              association: 'author',
+              attributes: ['id', 'name'],
+            },
+            {
+              association: 'comments',
+              attributes: ['author_id', 'body'],
+            },
+          ],
         },
-      },
+      ],
     });
 
     if (!isMember && groupTopics.is_private)
@@ -105,8 +113,8 @@ class TopicController {
           where: { id: topic_id },
           attributes: ['id', 'name'],
           include: {
-            association: 'author',
-            attributes: ['id', 'name'],
+            association: 'comments',
+            attributes: ['id', 'author_id', 'body'],
           },
         },
       ],

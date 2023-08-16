@@ -21,7 +21,7 @@ class Topic extends Model {
 
     this.belongsTo(models.Group, { foreignKey: 'group_id', as: 'group' });
 
-    this.hasMany(models.Comment, { foreignKey: 'topic_id', as: 'comments' });
+    this.hasMany(models.Comment, { foreignKey: 'author_id', as: 'comments' });
   }
 }
 
