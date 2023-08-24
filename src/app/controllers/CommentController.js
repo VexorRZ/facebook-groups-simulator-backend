@@ -24,16 +24,18 @@ class CommentController {
         return res.status(400).json({ error: 'Group does not exists' });
 
       const isMember = await Group.findOne({
-        where: {
-          id: group_id,
-        },
+        where: { id: group_id },
         include: [
           {
             association: 'members',
-            where: { id: req.userId },
+            attributes: ['id'],
+            where: {
+              id: req.userId,
+            },
           },
         ],
       });
+
       if (!isMember)
         return res
           .status(401)
@@ -53,6 +55,8 @@ class CommentController {
         author_id: req.userId,
         topic_id,
       });
+
+      await topicExists.addComment(createComment);
 
       return res.status(201).json({
         body: createComment.body,
@@ -99,7 +103,7 @@ class CommentController {
         },
         {
           association: 'comments',
-          attributes: ['id', 'name'],
+          attributes: ['id', 'body'],
           include: {
             association: 'author',
             attributes: ['id', 'name'],

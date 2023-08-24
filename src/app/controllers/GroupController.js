@@ -1,195 +1,221 @@
-/* eslint-disable prettier/prettier */
 import * as Yup from 'yup';
 
 import Group from '../models/Group';
 import User from '../models/User';
 
 class GroupController {
-    async create(req, res) {
-        const { group_name, is_private } = req.body;
+  async create(req, res) {
+    const { name, is_private } = req.body;
 
-        const schema = Yup.object().shape({
-            group_name: Yup.string().required(),
-            is_private: Yup.boolean().required(),
-        });
+    const schema = Yup.object().shape({
+      name: Yup.string().required(),
+      is_private: Yup.boolean().required(),
+    });
 
-        if (!(await schema.isValid(req.body)))
-            return res.status(400).json({ error: 'validation fails' });
+    if (!(await schema.isValid(req.body)))
+      return res.status(400).json({ error: 'validation fails' });
 
-        const groupExists = await Group.findOne({
-            where: { group_name },
-        });
-        if (groupExists)
-            return res.status(400).json({ error: 'group already exists' });
+    const groupExists = await Group.findOne({
+      where: { name },
+    });
+    if (groupExists)
+      return res.status(400).json({ error: 'group already exists' });
 
-        const groupCreated = await Group.create({
-            group_name,
-            is_private,
-            owner_id: req.userId,
-        });
-        const user = await User.findByPk(req.userId);
+    const groupCreated = await Group.create({
+      name,
+      is_private,
+      owner_id: req.userId,
+    });
+    const user = await User.findByPk(req.userId);
 
-        await user.addGroup(groupCreated);
+    await user.addGroup(groupCreated);
 
-        return res.json({
-            id: groupCreated.id,
-            group_name,
-            is_private,
-            owner: groupCreated.owner_id,
-        });
-    }
+    return res.json({
+      id: groupCreated.id,
+      name,
+      is_private,
+      owner: groupCreated.owner_id,
+    });
+  }
 
-    async index(req, res) {
-        const groups = await Group.findAll({
-            attributes: ['id', 'name', 'is_private'],
-            order: ['id'],
-            include: [{
-                    association: 'administrator',
-                    attributes: ['id', 'name'],
-                },
-                {
-                    association: 'moderators',
-                    attributes: ['name'],
-                },
-                {
-                    association: 'topics',
-                    attributes: ['id', 'name', 'author_id'],
-                },
-                {
-                    association: 'members',
-                    attributes: ['id', 'name'],
-                },
-            ],
-        });
-
-        if (!groups) return res.status(400).json({ error: 'no groups was found' });
-
-        return res.status(200).json(groups);
-    }
-
-    async show(req, res) {
-        const { group_id } = req.params;
-        const groupExists = await Group.findByPk(group_id);
-
-        if (!groupExists) return res.status(400).json('group do not exists');
-
-        const isMember = await Group.findOne({
-            where: { id: group_id },
+  async index(req, res) {
+    const groups = await Group.findAll({
+      attributes: ['id', 'name', 'is_private'],
+      order: ['id'],
+      include: [
+        {
+          association: 'administrator',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'moderators',
+          attributes: ['name'],
+        },
+        {
+          association: 'topics',
+          attributes: ['name'],
+          include: {
+            association: 'author',
+            attributes: ['name', 'id'],
+          },
+          include: {
+            association: 'comments',
+            attributes: ['body'],
             include: {
-                association: 'members',
-                where: { id: req.userId },
-                required: true,
+              association: 'author',
+              attributes: ['name', 'id'],
             },
-        });
+          },
+        },
+        {
+          association: 'members',
+          attributes: ['name'],
+        },
+      ],
+    });
 
-        const includeStatement = [];
+    if (!groups) return res.status(400).json({ error: 'no groups was found' });
 
-        if (!isMember && groupExists.is_private) {
-            includeStatement.push({
-                association: 'administrator',
-                attributes: ['id', 'name'],
-            }, {
-                association: 'moderators',
-                attributes: ['id', 'name'],
-            });
-        } else {
-            includeStatement.push({
-                association: 'administrator',
-                attributes: ['id', 'name'],
-            }, {
-                association: 'moderators',
-                attributes: ['id', 'name'],
-            }, {
-                association: 'members',
-                attributes: ['id', 'name'],
-            }, {
-                association: 'topics',
-                attributes: ['id', 'name', 'author_id'],
-                include: [{
-                        association: 'author',
-                        attributes: ['id', 'name'],
-                    },
+    return res.status(200).json(groups);
+  }
 
-                    {
-                        association: 'comments',
-                        attributes: ['id', 'author_id', 'body'],
-                    },
-                ],
-            });
+  async show(req, res) {
+    const { group_id } = req.params;
+    const groupExists = await Group.findByPk(group_id);
+
+    if (!groupExists) return res.status(400).json('group do not exists');
+
+    const isMember = await Group.findOne({
+      where: { id: group_id },
+      include: {
+        association: 'members',
+        where: { id: req.userId },
+        required: true,
+      },
+    });
+
+    const includeStatement = [];
+
+    if (!isMember && groupExists.is_private) {
+      includeStatement.push(
+        {
+          association: 'administrator',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'moderators',
+          attributes: ['id', 'name'],
         }
+      );
+    } else {
+      includeStatement.push(
+        {
+          association: 'administrator',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'moderators',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'members',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'topics',
+          attributes: ['id', 'name', 'author_id'],
+          include: [
+            {
+              association: 'author',
+              attributes: ['id', 'name'],
+            },
 
-        const group = await Group.findByPk(group_id, {
-            attributes: ['id', 'name', 'is_private'],
-            include: includeStatement,
-        });
-
-        return res.status(200).json(group);
+            {
+              association: 'comments',
+              attributes: ['id', 'author_id', 'body'],
+            },
+          ],
+        }
+      );
     }
 
-    async update(req, res) {
-        const { group_id } = req.params;
-        const { name, is_private } = req.body;
+    const group = await Group.findByPk(group_id, {
+      attributes: ['id', 'name', 'is_private'],
+      include: includeStatement,
+    });
 
-        const schema = Yup.object().shape({
-            name: Yup.string(),
-            is_private: Yup.boolean(),
-        });
+    return res.status(200).json(group);
+  }
 
-        if (!(await schema.isValid(req.body)))
-            return res.status(400).json({ error: 'validation fails' });
+  async update(req, res) {
+    const { group_id } = req.params;
+    const { name, is_private } = req.body;
 
-        const groupExists = await Group.findByPk(group_id);
-        if (!groupExists)
-            return res.status(400).json({ error: 'group do not exists' });
+    const schema = Yup.object().shape({
+      name: Yup.string(),
+      is_private: Yup.boolean(),
+    });
 
-        const isOwner = await Group.findOne({
-            where: { id: group_id, owner_id: req.userId },
-        });
+    if (!(await schema.isValid(req.body)))
+      return res.status(400).json({ error: 'validation fails' });
 
-        const isModerator = await Group.findOne({
-            where: { id: group_id },
-            include: [{
-                association: 'moderators',
-                where: { id: req.userId },
-            }, ],
-        });
+    const groupExists = await Group.findByPk(group_id);
+    if (!groupExists)
+      return res.status(400).json({ error: 'group do not exists' });
 
-        if (!isOwner && !isModerator)
-            return res
-                .status(401)
-                .json({ error: 'Only the admin or moderators can update the group' });
+    const isOwner = await Group.findOne({
+      where: { id: group_id, owner_id: req.userId },
+    });
 
-        await Group.update({
-            name,
-            is_private,
-        }, { where: { id: group_id } });
+    const isModerator = await Group.findOne({
+      where: { id: group_id },
+      include: [
+        {
+          association: 'moderators',
+          where: { id: req.userId },
+        },
+      ],
+    });
 
-        return res.status(200).json({
-            message: 'group successfully updated',
-            name,
-            is_private,
-        });
-    }
+    if (!isOwner && !isModerator)
+      return res
+        .status(401)
+        .json({ error: 'Only the admin or moderators can update the group' });
 
-    async delete(req, res) {
-        const { group_id } = req.params;
+    await Group.update(
+      {
+        name,
+        is_private,
+      },
+      { where: { id: group_id } }
+    );
 
-        const groupExists = await Group.findByPk(group_id);
-        if (!groupExists) return res.status(400).json('Group do not exists');
+    return res.status(200).json({
+      message: 'group successfully updated',
+      name,
+      is_private,
+    });
+  }
 
-        const isOwner = await Group.findOne({
-            where: { id: group_id, owner_id: req.userId },
-        });
+  async delete(req, res) {
+    const { group_id } = req.params;
 
-        if (!isOwner)
-            return res.status(401).json({
-                error: 'Only the owner can delete the group',
-            });
+    const groupExists = await Group.findByPk(group_id);
+    if (!groupExists) return res.status(400).json('Group do not exists');
 
-        await Group.destroy({ where: { id: group_id } });
+    const isOwner = await Group.findOne({
+      where: { id: group_id, owner_id: req.userId },
+    });
 
-        return res.status(200).json({ msg: 'group successfully deleted' });
-    }
+    if (!isOwner)
+      return res.status(401).json({
+        error: 'Only the owner can delete the group',
+      });
+
+    await Group.destroy({ where: { id: group_id } });
+
+    return res.status(200).json({ msg: 'group successfully deleted' });
+  }
 }
 
 export default new GroupController();
