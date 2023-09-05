@@ -100,13 +100,15 @@ class TopicController {
                 },
             }, ],
         });
-
+        const { page, size } = req.query;
         const groupTopics = await Group.findByPk(group_id, {
             attributes: ['id', 'name'],
             include: {
                 association: 'topics',
                 where: { id: topic_id },
                 attributes: ['id', 'name'],
+                limit: size,
+                offset: page * size,
                 include: [{
                         association: 'author',
                         attributes: ['id', 'name'],
