@@ -109,6 +109,7 @@ class TopicController {
                 attributes: ['id', 'name'],
                 limit: size,
                 offset: page * size,
+
                 include: [{
                         association: 'author',
                         attributes: ['id', 'name'],
@@ -116,6 +117,31 @@ class TopicController {
                     {
                         association: 'comments',
                         attributes: ['id', 'body'],
+
+                        include: {
+                            association: 'author',
+                            attributes: ['id', 'name'],
+                        },
+                    },
+                ],
+            },
+        });
+
+        const groupTopicsTotalCount = await Group.findByPk(group_id, {
+            attributes: ['id', 'name'],
+            include: {
+                association: 'topics',
+                where: { id: topic_id },
+                attributes: ['id', 'name'],
+
+                include: [{
+                        association: 'author',
+                        attributes: ['id', 'name'],
+                    },
+                    {
+                        association: 'comments',
+                        attributes: ['id', 'body'],
+
                         include: {
                             association: 'author',
                             attributes: ['id', 'name'],
@@ -128,9 +154,14 @@ class TopicController {
         if (!isMember && groupTopics.is_private)
             return res
                 .status(401)
-                .json({ error: 'Private group. Only members can see the content' });
+                .send({ error: 'Private group. Only members can see the content' });
 
-        return res.json(groupTopics);
+        const totalCount = groupTopicsTotalCount.topics[0].comments.length;
+
+        return res.json({
+            groupTopics,
+            totalCount,
+        });
     }
 
     async delete(req, res) {
