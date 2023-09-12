@@ -107,8 +107,6 @@ class GroupController {
             includeStatement.push({
                     association: 'topics',
                     attributes: ['id', 'name', 'author_id'],
-                    limit: size,
-                    offset: page * size,
 
                     include: [{
                             association: 'author',
@@ -135,7 +133,6 @@ class GroupController {
             );
         }
         const { page, size } = req.query;
-
         const group = await Group.findByPk(group_id, {
             attributes: ['id', 'name', 'is_private'],
 
@@ -144,6 +141,13 @@ class GroupController {
                 attributes: ['id', 'name', 'author_id'],
                 limit: size,
                 offset: page * size,
+
+                include: {
+                    association: 'comments',
+                    attributes: ['id', 'author_id', 'body'],
+                    limit: size,
+                    offset: page * size,
+                },
             },
         });
 

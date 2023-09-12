@@ -107,8 +107,6 @@ class TopicController {
                 association: 'topics',
                 where: { id: topic_id },
                 attributes: ['id', 'name'],
-                limit: size,
-                offset: page * size,
 
                 include: [{
                         association: 'author',
@@ -117,7 +115,8 @@ class TopicController {
                     {
                         association: 'comments',
                         attributes: ['id', 'body'],
-
+                        limit: size,
+                        offset: page * size,
                         include: {
                             association: 'author',
                             attributes: ['id', 'name'],
@@ -160,7 +159,6 @@ class TopicController {
 
         return res.json({
             groupTopics,
-            totalCount,
         });
     }
 
