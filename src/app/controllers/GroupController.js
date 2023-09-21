@@ -132,21 +132,26 @@ class GroupController {
                 }
             );
         }
-        const { page, size } = req.query;
+        let { page, size } = req.query;
+
+        page = Number(page);
+        size = Number(size);
+
         const group = await Group.findByPk(group_id, {
             attributes: ['id', 'name', 'is_private'],
 
             include: {
                 association: 'topics',
                 attributes: ['id', 'name', 'author_id'],
-                limit: size,
-                offset: page * size,
+                order: ['createdAt'],
+                size: size,
+                page: page,
 
                 include: {
                     association: 'comments',
                     attributes: ['id', 'author_id', 'body'],
-                    limit: size,
-                    offset: page * size,
+                    size: size,
+                    page: page,
                 },
             },
         });
