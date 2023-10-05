@@ -12,6 +12,8 @@ import CommentController from './app/controllers/CommentController';
 import RequestEntryController from './app/controllers/GroupsRequestsEntrysController';
 
 import authMiddleware from './app/middlewares/auth';
+import multer from 'multer';
+import multerConfig from './config/multer';
 
 const routes = new Router();
 
@@ -30,7 +32,11 @@ routes.put('/users/:user_id', UserController.update);
 routes.delete('/users/:user_id,', UserController.delete);
 
 // groups routes
-routes.post('/groups', GroupController.create);
+routes.post(
+  '/groups',
+  multer(multerConfig).single('file'),
+  GroupController.create
+);
 routes.get('/groups', GroupController.index);
 routes.get('/groups/:group_id', GroupController.show);
 routes.delete('/groups/:group_id', GroupController.delete);
@@ -83,7 +89,11 @@ routes.delete('/topics/:group_id/:topic_id', TopicController.delete);
 routes.put('/topics/:group_id/:topic_id', TopicController.update);
 
 // Comments routes
-routes.post('/comments/:group_id/:topic_id', CommentController.create);
+routes.post(
+  '/comments/:group_id/:topic_id',
+
+  CommentController.create
+);
 routes.get('/comments/:group_id/:topic_id', CommentController.index);
 routes.get('/comments/:group_id/:topic_id/:comment_id', CommentController.show);
 routes.put(

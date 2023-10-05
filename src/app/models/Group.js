@@ -5,6 +5,8 @@ class Group extends Model {
         super.init({
             name: Sequelize.STRING,
             is_private: Sequelize.BOOLEAN,
+            avatar: Sequelize.STRING,
+
         }, {
             sequelize,
             tableName: 'groups',
