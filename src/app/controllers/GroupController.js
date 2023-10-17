@@ -7,45 +7,41 @@ class GroupController {
   async create(req, res) {
     const { name, is_private } = req.body;
 
-    console.log(req.file);
-    return res.json(req.file);
+    console.log(req);
 
-    // const schema = Yup.object().shape({
-    //   name: Yup.string().required(),
-    //   is_private: Yup.boolean().required(),
-    // });
+    console.log(name, is_private);
 
-    // if (!(await schema.isValid(req.body)))
-    //   return res.status(400).json({ error: 'validation fails' });
+    const schema = Yup.object().shape({
+      name: Yup.string().required(),
+      is_private: Yup.boolean().required(),
+    });
 
-    // const groupExists = await Group.findOne({
-    //   where: { name },
-    // });
-    // if (groupExists)
-    //   return res.status(400).json({ error: 'group already exists' });
+    if (!(await schema.isValid(req.body)))
+      return res.status(400).json({ error: 'validation fails' });
 
-    // const groupCreated = await Group.create({
-    //   name,
-    //   is_private,
-    //   owner_id: req.userId,
-    // });
-    // const user = await User.findByPk(req.userId);
+    const groupExists = await Group.findOne({
+      where: { name },
+    });
+    if (groupExists)
+      return res.status(400).json({ error: 'group already exists' });
 
-    // await user.addGroup(groupCreated);
+    const groupCreated = await Group.create({
+      name,
+      is_private,
+      owner_id: req.userId,
+      avatar: req.body.file.path,
+    });
+    const user = await User.findByPk(req.userId);
 
-    // const storeImage = {
-    //   originalname,
-    //   size,
-    //   filename,
-    // };
+    await user.addGroup(groupCreated);
 
-    // console.log(storeImage);
-    // return res.json({
-    //   id: groupCreated.id,
-    //   name,
-    //   is_private,
-    //   owner: groupCreated.owner_id,
-    // });
+    return res.json({
+      id: groupCreated.id,
+      name,
+      is_private,
+      owner: groupCreated.owner_id,
+      file: req.file,
+    });
   }
 
   async index(req, res) {
@@ -156,7 +152,7 @@ class GroupController {
     size = Number(size);
 
     const group = await Group.findByPk(group_id, {
-      attributes: ['id', 'name', 'is_private'],
+      attributes: ['id', 'name', 'is_private', 'avatar'],
 
       include: {
         association: 'topics',
