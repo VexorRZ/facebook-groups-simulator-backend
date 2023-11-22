@@ -4,6 +4,7 @@ import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import routes from './routes';
+import cloudinaryConfig from './config/cloudinaryConfig';
 
 import './database';
 

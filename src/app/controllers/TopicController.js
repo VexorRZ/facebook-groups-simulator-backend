@@ -108,13 +108,6 @@ class TopicController {
       ],
     });
 
-    const isOwner = await Group.findOne({
-      where: {
-        id: group_id,
-        owner_id: req.userId,
-      },
-    });
-
     const { page = 1, size = 10 } = req.query;
     const groupTopics = await Group.findByPk(group_id, {
       attributes: ['id', 'name'],
@@ -178,8 +171,6 @@ class TopicController {
     return res.json({
       groupTopics,
       totalCount,
-      isMember,
-      isOwner,
     });
   }
 
