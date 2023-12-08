@@ -11,22 +11,6 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      owner_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: 'users', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
-
-      group_avatar_id: {
-        type: Sequelize.INTEGER,
-        references: { model: 'files', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'SET NULL',
-        allowNull: true,
-      },
-
       description: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -37,6 +21,23 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
+
+      group_avatar_id: {
+        type: Sequelize.INTEGER,
+        references: { model: 'files', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+        allowNull: true,
+      },
+
+      owner_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: { model: 'users', key: 'id' },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

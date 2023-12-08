@@ -21,11 +21,7 @@ const routes = new Router();
 routes.post('/sessions', SessionController.store);
 
 // users routes
-routes.post(
-  '/users',
-  multer(multerConfig).single('file'),
-  UserController.store
-);
+routes.post('/users', UserController.store);
 
 routes.use(authMiddleware);
 

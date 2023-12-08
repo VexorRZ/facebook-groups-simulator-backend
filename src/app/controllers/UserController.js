@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import User from '../models/User';
+import File from '../models/File';
 import { v2 as cloudinary } from 'cloudinary';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
 require('dotenv').config();
@@ -8,32 +9,42 @@ CloudiNaryConfig;
 
 class UserController {
   async store(req, res) {
-    const schema = Yup.object().shape({
-      name: Yup.string().required(),
-      email: Yup.string().email().required(),
-      permitted_to_add_in_groups: Yup.boolean().required(),
-      password: Yup.string().required().min(6),
-    });
+    try {
+      console.log(req.body);
+      const schema = Yup.object().shape({
+        name: Yup.string().required(),
+        surname: Yup.string().required(),
+        email: Yup.string().email().required(),
+        //   permitted_to_add_in_groups: Yup.boolean().required(),
+        password: Yup.string().required().min(6),
+      });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' });
+      }
+
+      const userExists = await User.findOne({
+        where: { email: req.body.email },
+      });
+
+      if (userExists) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+      const { name, surname, email, password } = req.body;
+
+      const userCreated = await User.create({
+        name,
+        surname,
+        email,
+        password,
+        permitted_to_add_in_groups: true,
+      });
+
+      return res.status(201).json(userCreated);
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json({ erro: err });
     }
-
-    const userExists = await User.findOne({ where: { email: req.body.email } });
-    if (userExists) {
-      return res.status(400).json({ error: 'User already exists' });
-    }
-
-    const { id, name, email, permitted_to_add_in_groups } = await User.create(
-      req.body
-    );
-
-    return res.json({
-      id,
-      name,
-      email,
-      permitted_to_add_in_groups,
-    });
   }
 
   async update(req, res) {
@@ -85,19 +96,26 @@ class UserController {
 
       const { path } = req.file;
 
-      const newAvatar = await cloudinary.uploader.upload(path, {
+      const avatar = await cloudinary.uploader.upload(path, {
         folder: process.env.IMAGES_FOLDER,
       });
 
-      await user.update({
-        avatar_id: newAvatar.secure_url,
-      });
+      console.log(avatar);
+      return res.send(true);
 
-      return res.send({
-        msg: 'User successfully updated',
+      // await File.create( {
 
-        avavatar_id,
-      });
+      // })
+
+      // await user.update({
+      //   avatar_id: newAvatar.secure_url,
+      // });
+
+      // return res.send({
+      //   msg: 'User successfully updated',
+
+      //   avavatar_id,
+      // });
     } catch (err) {
       return err;
     }

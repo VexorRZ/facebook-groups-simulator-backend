@@ -53,7 +53,7 @@ class Group extends Model {
     this.hasOne(models.File, {
       foreignKey: 'id',
       through: 'files',
-      as: 'avatar',
+      as: 'avatar_group',
     });
   }
 }
