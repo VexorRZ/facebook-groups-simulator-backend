@@ -7,7 +7,6 @@ class User extends Model {
       {
         name: Sequelize.STRING,
         email: Sequelize.STRING,
-        avatar_id: Sequelize.STRING,
         permitted_to_add_in_groups: Sequelize.BOOLEAN,
         password: Sequelize.VIRTUAL,
         password_hash: Sequelize.STRING,
@@ -64,6 +63,12 @@ class User extends Model {
     this.hasMany(models.Comment, {
       foreignKey: 'author_id',
       as: 'comments_created',
+    });
+
+    this.hasOne(models.File, {
+      foreignKey: 'id',
+      through: 'files',
+      as: 'avatar',
     });
   }
 

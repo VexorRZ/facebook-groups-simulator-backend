@@ -1,6 +1,6 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('topics', {
+    return queryInterface.createTable('users', {
       id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -11,25 +11,20 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      author_id: {
-        type: Sequelize.INTEGER,
+      email: {
+        type: Sequelize.STRING,
         allowNull: false,
-        references: { model: 'users', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
+        unique: true,
       },
-      group_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: { model: 'groups', key: 'id' },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
-      is_closed: {
+      permitted_to_add_in_groups: {
         type: Sequelize.BOOLEAN,
         allowNull: false,
-        defaultValue: false,
       },
+      password_hash: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,
@@ -42,6 +37,6 @@ module.exports = {
   },
 
   down: (queryInterface) => {
-    return queryInterface.dropTable('topics');
+    return queryInterface.dropTable('users');
   },
 };

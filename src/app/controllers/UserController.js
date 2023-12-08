@@ -1,5 +1,10 @@
 import * as Yup from 'yup';
 import User from '../models/User';
+import { v2 as cloudinary } from 'cloudinary';
+import CloudiNaryConfig from '../../config/cloudinaryConfig';
+require('dotenv').config();
+
+CloudiNaryConfig;
 
 class UserController {
   async store(req, res) {
@@ -32,59 +37,70 @@ class UserController {
   }
 
   async update(req, res) {
-    const { user_id } = req.params;
+    try {
+      const { user_id } = req.params;
 
-    const findUser = await User.findOne({ where: { id: user_id } });
+      const findUser = await User.findOne({ where: { id: user_id } });
 
-    if (findUser.id !== req.userId)
-      return res
-        .status(401)
-        .json({ error: 'Invalid action. You are not this user' });
+      if (findUser.id !== req.userId)
+        return res
+          .status(401)
+          .json({ error: 'Invalid action. You are not this user' });
 
-    const schema = Yup.object().shape({
-      name: Yup.string(),
-      email: Yup.string().email(),
-      permitted_to_add_in_groups: Yup.boolean(),
-      oldPassword: Yup.string().min(6),
-      password: Yup.string()
-        .min(6)
-        .when('oldPassword', (oldPassword, field) =>
-          oldPassword ? field.required() : field
-        ),
-      confirmPassword: Yup.string().when('password', (password, field) =>
-        password ? field.required().oneOf([Yup.ref('password')]) : field
-      ),
-    });
+      // const schema = Yup.object().shape({
+      //   name: Yup.string(),
+      //   email: Yup.string().email(),
+      //   permitted_to_add_in_groups: Yup.boolean(),
+      //   oldPassword: Yup.string().min(6),
+      //   password: Yup.string()
+      //     .min(6)
+      //     .when('oldPassword', (oldPassword, field) =>
+      //       oldPassword ? field.required() : field
+      //     ),
+      //   confirmPassword: Yup.string().when('password', (password, field) =>
+      //     password ? field.required().oneOf([Yup.ref('password')]) : field
+      //   ),
+      // });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
-    }
+      // if (!(await schema.isValid(req.body))) {
+      //   return res.status(400).json({ error: 'Validation fails' });
+      // }
 
-    const { email, oldPassword } = req.body;
+      // const { email, oldPassword } = req.body;
 
-    const user = await User.findByPk(req.userId);
+      const user = await User.findByPk(req.userId);
 
-    if (email !== user.email) {
-      const userExists = await User.findOne({
-        where: { email },
+      // if (email !== user.email) {
+      //   const userExists = await User.findOne({
+      //     where: { email },
+      //   });
+      //   if (userExists) {
+      //     return res.status(400).json({ error: 'User already exists' });
+      //   }
+      // }
+
+      // if (oldPassword && !(await user.checkPassword(oldPassword))) {
+      //   return res.status(401).json({ error: 'Password does not match' });
+      // }
+
+      const { path } = req.file;
+
+      const newAvatar = await cloudinary.uploader.upload(path, {
+        folder: process.env.IMAGES_FOLDER,
       });
-      if (userExists) {
-        return res.status(400).json({ error: 'User already exists' });
-      }
+
+      await user.update({
+        avatar_id: newAvatar.secure_url,
+      });
+
+      return res.send({
+        msg: 'User successfully updated',
+
+        avavatar_id,
+      });
+    } catch (err) {
+      return err;
     }
-
-    if (oldPassword && !(await user.checkPassword(oldPassword))) {
-      return res.status(401).json({ error: 'Password does not match' });
-    }
-
-    const { name, permitted_to_add_in_groups } = await user.update(req.body);
-
-    return res.json({
-      msg: 'User successfully updated',
-      name,
-      email,
-      permitted_to_add_in_groups,
-    });
   }
 
   async index(req, res) {

@@ -21,21 +21,29 @@ const routes = new Router();
 routes.post('/sessions', SessionController.store);
 
 // users routes
-routes.post('/users', UserController.store);
+routes.post(
+  '/users',
+  multer(multerConfig).single('file'),
+  UserController.store
+);
 
 routes.use(authMiddleware);
 
 // users routes
 routes.get('/users', UserController.index);
 routes.get('/users/:user_id', UserController.show);
-routes.put('/users/:user_id', UserController.update);
+routes.put(
+  '/users/:user_id',
+  multer(multerConfig).single('file'),
+  UserController.update
+);
 routes.delete('/users/:user_id,', UserController.delete);
 
 // groups routes
 routes.post(
-    '/groups',
-    multer(multerConfig).single('file'),
-    GroupController.create
+  '/groups',
+  multer(multerConfig).single('file'),
+  GroupController.create
 );
 routes.get('/groups', GroupController.index);
 routes.get('/groups/:group_id', GroupController.show);
@@ -44,17 +52,17 @@ routes.put('/groups/:group_id', GroupController.update);
 
 // groupsModerators routes
 routes.post(
-    '/groupsmoderators/:group_id/:user_id',
-    GroupModeratorsController.create
+  '/groupsmoderators/:group_id/:user_id',
+  GroupModeratorsController.create
 );
 routes.get('/groupsmoderators/:group_id', GroupModeratorsController.index);
 routes.get(
-    '/groupsmoderators/:group_id/:user_id',
-    GroupModeratorsController.show
+  '/groupsmoderators/:group_id/:user_id',
+  GroupModeratorsController.show
 );
 routes.delete(
-    '/groupsmoderators/:group_id/:user_id',
-    GroupModeratorsController.delete
+  '/groupsmoderators/:group_id/:user_id',
+  GroupModeratorsController.delete
 );
 
 // groupsMembers routes
@@ -62,8 +70,8 @@ routes.post('/groupsmembers/:group_id/:user_id', GroupMembersController.create);
 routes.get('/groupsmembers/:group_id/:user_id', GroupMembersController.show);
 routes.get('/groupsmembers/:group_id', GroupMembersController.index);
 routes.delete(
-    '/groupsmembers/:group_id/:user_id',
-    GroupMembersController.delete
+  '/groupsmembers/:group_id/:user_id',
+  GroupMembersController.delete
 );
 
 // groupsBansController routes
@@ -76,8 +84,8 @@ routes.delete('/groupsbans/:group_id/:user_id', GroupBansController.delete);
 routes.post('/request_entry/:group_id', RequestEntryController.create);
 routes.get('/request_entry/:group_id', RequestEntryController.index);
 routes.delete(
-    '/request_entry/:group_id/:user_id',
-    RequestEntryController.delete
+  '/request_entry/:group_id/:user_id',
+  RequestEntryController.delete
 );
 routes.put('/request_entry/:group_id/:user_id', RequestEntryController.update);
 
@@ -90,19 +98,19 @@ routes.put('/topics/:group_id/:topic_id', TopicController.update);
 
 // Comments routes
 routes.post(
-    '/comments/:group_id/:topic_id',
+  '/comments/:group_id/:topic_id',
 
-    CommentController.create
+  CommentController.create
 );
 routes.get('/comments/:group_id/:topic_id', CommentController.index);
 routes.get('/comments/:group_id/:topic_id/:comment_id', CommentController.show);
 routes.put(
-    '/comments/:group_id/:topic_id/:comment_id',
-    CommentController.update
+  '/comments/:group_id/:topic_id/:comment_id',
+  CommentController.update
 );
 routes.delete(
-    '/comments/:group_id/:topic_id/:comment_id',
-    CommentController.delete
+  '/comments/:group_id/:topic_id/:comment_id',
+  CommentController.delete
 );
 
 export default routes;
