@@ -2,8 +2,10 @@ import * as Yup from 'yup';
 import User from '../models/User';
 import File from '../models/File';
 import { v2 as cloudinary } from 'cloudinary';
+import { v4 as uuidv4 } from 'uuid';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
 require('dotenv').config();
+const crypto = require('crypto');
 
 CloudiNaryConfig;
 
@@ -33,6 +35,7 @@ class UserController {
       const { name, surname, email, password } = req.body;
 
       const userCreated = await User.create({
+        id: uuidv4(),
         name,
         surname,
         email,

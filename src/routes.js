@@ -10,6 +10,7 @@ import GroupBansController from './app/controllers/GroupBansController';
 import TopicController from './app/controllers/TopicController';
 import CommentController from './app/controllers/CommentController';
 import RequestEntryController from './app/controllers/GroupsRequestsEntrysController';
+import FileControler from './app/controllers/FileController';
 
 import authMiddleware from './app/middlewares/auth';
 import multer from 'multer';
@@ -24,6 +25,13 @@ routes.post('/sessions', SessionController.store);
 routes.post('/users', UserController.store);
 
 routes.use(authMiddleware);
+
+//files routes
+routes.patch(
+  '/files',
+  multer(multerConfig).single('file'),
+  FileControler.store
+);
 
 // users routes
 routes.get('/users', UserController.index);

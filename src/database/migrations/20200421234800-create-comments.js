@@ -2,9 +2,9 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('comments', {
       id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4(),
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
       },
       body: {
@@ -12,14 +12,16 @@ module.exports = {
         allowNull: false,
       },
       author_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4(),
         allowNull: false,
         references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       topic_id: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4(),
         allowNull: false,
         references: { model: 'topics', key: 'id' },
         onUpdate: 'CASCADE',

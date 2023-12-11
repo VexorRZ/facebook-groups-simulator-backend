@@ -5,10 +5,15 @@ class User extends Model {
   static init(sequelize) {
     super.init(
       {
+        // id: {
+        //   type: Sequelize.UUID,
+        //   defaultValue: Sequelize.UUIDV4,
+        // },
         name: Sequelize.STRING,
         email: Sequelize.STRING,
         surname: Sequelize.STRING,
         permitted_to_add_in_groups: Sequelize.BOOLEAN,
+        user_avatar_id: Sequelize.STRING,
         password: Sequelize.VIRTUAL,
         password_hash: Sequelize.STRING,
       },
