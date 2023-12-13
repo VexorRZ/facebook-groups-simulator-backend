@@ -16,7 +16,15 @@ class SessionController {
     }
 
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({
+      where: { email },
+      include: [
+        {
+          association: 'avatar',
+          attributes: ['id', 'path'],
+        },
+      ],
+    });
 
     if (!user) {
       return res.status(401).send({ msg: 'msg: User not found' });
@@ -26,15 +34,16 @@ class SessionController {
       return res.status(401).send({ msg: 'msg: Password does not match' });
     }
 
-    const { id, name, avatar_id } = user;
+    const { id, name, avatar } = user;
 
     return res.json({
       user: {
         id,
         name,
         email,
-        avatar_id,
+        avatar,
       },
+
       token: jwt.sign({ id }, authConfig.secret, {
         expiresIn: authConfig.expiresIn,
       }),

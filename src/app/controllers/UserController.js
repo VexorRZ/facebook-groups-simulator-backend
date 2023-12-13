@@ -1,11 +1,10 @@
 import * as Yup from 'yup';
 import User from '../models/User';
-import File from '../models/File';
+
 import { v2 as cloudinary } from 'cloudinary';
 import { v4 as uuidv4 } from 'uuid';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
 require('dotenv').config();
-const crypto = require('crypto');
 
 CloudiNaryConfig;
 
@@ -133,6 +132,10 @@ class UserController {
           association: 'groups',
           attributes: ['id', 'name'],
           order: ['name'],
+        },
+        {
+          association: 'avatar',
+          attributes: ['id', 'path'],
         },
       ],
     });

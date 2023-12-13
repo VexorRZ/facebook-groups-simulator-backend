@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import Group from '../models/Group';
+import File from '../models/File';
 import User from '../models/User';
 import { v2 as cloudinary } from 'cloudinary';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
@@ -56,7 +57,7 @@ class GroupController {
 
   async index(req, res) {
     const groups = await Group.findAll({
-      attributes: ['id', 'name', 'is_private', 'avatar'],
+      attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
       order: ['id'],
       include: [
         {
@@ -167,7 +168,7 @@ class GroupController {
     size = Number(size);
 
     const group = await Group.findByPk(group_id, {
-      attributes: ['id', 'name', 'is_private', 'avatar'],
+      attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
 
       include: {
         association: 'topics',

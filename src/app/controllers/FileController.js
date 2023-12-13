@@ -2,6 +2,7 @@ import File from '../models/File';
 import User from '../models/User';
 import { v2 as cloudinary } from 'cloudinary';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
+import { v4 as uuidv4 } from 'uuid';
 require('dotenv').config();
 
 CloudiNaryConfig;
@@ -16,7 +17,7 @@ class SessionController {
       });
 
       const newFile = await File.create({
-        id: parseInt(crypto.randomUUID()),
+        id: uuidv4(),
         name: response.original_filename,
         path: response.secure_url,
       });

@@ -7,7 +7,7 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
-      topic_title: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },

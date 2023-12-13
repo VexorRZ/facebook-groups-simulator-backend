@@ -22,6 +22,14 @@ class File extends Model {
 
     return this;
   }
+
+  static associate(models) {
+    this.belongsTo(models.Group, {
+      foreignKey: 'id',
+      through: 'groups',
+      as: 'group_avatar',
+    });
+  }
 }
 
 export default File;

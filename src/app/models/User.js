@@ -5,10 +5,6 @@ class User extends Model {
   static init(sequelize) {
     super.init(
       {
-        // id: {
-        //   type: Sequelize.UUID,
-        //   defaultValue: Sequelize.UUIDV4,
-        // },
         name: Sequelize.STRING,
         email: Sequelize.STRING,
         surname: Sequelize.STRING,
@@ -71,8 +67,8 @@ class User extends Model {
       as: 'comments_created',
     });
 
-    this.hasOne(models.File, {
-      foreignKey: 'id',
+    this.belongsTo(models.File, {
+      foreignKey: 'user_avatar_id',
       through: 'files',
       as: 'avatar',
     });
