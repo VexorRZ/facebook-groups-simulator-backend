@@ -15,6 +15,7 @@ import FileControler from './app/controllers/FileController';
 import authMiddleware from './app/middlewares/auth';
 import multer from 'multer';
 import multerConfig from './config/multer';
+import FileGroupController from './app/controllers/FileGroupController';
 
 const routes = new Router();
 
@@ -29,6 +30,24 @@ routes.use(authMiddleware);
 //files routes
 routes.patch(
   '/files',
+  multer(multerConfig).single('file'),
+  FileControler.store
+);
+
+routes.patch(
+  '/files_groups/:group_id',
+  multer(multerConfig).single('file'),
+  FileControler.store
+);
+
+routes.get(
+  '/files_groups/:group_avatar_id',
+  multer(multerConfig).single('file'),
+  FileGroupController.store
+);
+
+routes.patch(
+  '/files_comments',
   multer(multerConfig).single('file'),
   FileControler.store
 );

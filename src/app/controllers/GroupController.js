@@ -3,6 +3,7 @@ import Group from '../models/Group';
 import File from '../models/File';
 import User from '../models/User';
 import { v2 as cloudinary } from 'cloudinary';
+import { v4 as uuidv4 } from 'uuid';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
 require('dotenv').config();
 
@@ -11,11 +12,12 @@ CloudiNaryConfig;
 class GroupController {
   async create(req, res, next) {
     try {
-      const { name, is_private } = req.body;
+      const { name, is_private, description } = req.body;
       const { path } = req.file;
       const schema = Yup.object().shape({
         name: Yup.string().required(),
         is_private: Yup.boolean().required(),
+        description: Yup.string(),
       });
 
       if (!(await schema.isValid(req.body)))
@@ -31,21 +33,31 @@ class GroupController {
         folder: process.env.IMAGES_FOLDER,
       });
 
-      const groupCreated = await Group.create({
-        name,
-        is_private,
-        owner_id: req.userId,
-        avatar: response.secure_url,
+      const newFile = await File.create({
+        id: uuidv4(),
+        public_id: response.public_id,
+        name: response.original_filename,
+        path: response.secure_url,
       });
 
-      const user = await User.findByPk(req.userId);
+      const groupCreated = await Group.create({
+        id: uuidv4(),
+        name,
+        description,
+        is_private,
+        owner_id: req.userId,
+        group_avatar_id: newFile.id,
+      });
 
-      await user.addGroup(groupCreated);
+      //    const user = await User.findByPk(req.userId);
+
+      // await user.addGroup(groupCreated);
 
       return res.json({
         image: response,
         id: groupCreated.id,
         name,
+        description,
         is_private,
         owner: groupCreated.owner_id,
         avatar: response.url,
@@ -67,6 +79,10 @@ class GroupController {
         {
           association: 'moderators',
           attributes: ['name'],
+        },
+        {
+          association: 'avatar',
+          attributes: ['id', 'path'],
         },
         {
           association: 'topics',

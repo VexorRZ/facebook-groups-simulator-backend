@@ -25,10 +25,16 @@ class File extends Model {
   }
 
   static associate(models) {
-    this.belongsTo(models.Group, {
+    this.hasOne(models.Group, {
       foreignKey: 'id',
       through: 'groups',
       as: 'group_avatar',
+    });
+
+    this.hasOne(models.User, {
+      foreignKey: 'id',
+      through: 'users',
+      as: 'user_avatar',
     });
   }
 }

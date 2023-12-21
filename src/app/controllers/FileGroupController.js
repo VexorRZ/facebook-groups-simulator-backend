@@ -18,8 +18,8 @@ class SessionController {
         folder: process.env.IMAGES_FOLDER,
       });
 
-      const isMember = await User.findOne({
-        where: { id: req.userId },
+      const groupImage = await Group.findOne({
+        where: { id: group_id },
         include: [
           {
             association: 'avatar',
@@ -28,7 +28,7 @@ class SessionController {
       });
 
       const getFile = await File.findOne({
-        where: { id: isMember.dataValues.user_avatar_id },
+        where: { id: groupImage.dataValues.group_avatar_id },
       });
 
       if (getFile) {
@@ -44,23 +44,27 @@ class SessionController {
         path: response.secure_url,
       });
 
-      await User.update(
+      await Group.update(
         {
-          user_avatar_id: newFile.id,
+          group_avatar_id: newFile.id,
         },
         {
-          where: { id: req.userId },
-          returning: true,
-          plain: true,
+          where: { id: group_id },
         }
       );
 
-      return res.status(201).send(newFile);
+      return res.status(201).json(newFile);
     } catch (err) {
       return res.status(400).send(err);
     }
   }
 
-  async delete(req, res) {}
+  async show(req, res) {
+    const { group_id } = req.params;
+
+    const getGroupImage = await File.findOne({
+      where: { id },
+    });
+  }
 }
 export default new SessionController();

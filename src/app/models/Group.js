@@ -4,7 +4,7 @@ class Group extends Model {
   static init(sequelize) {
     super.init(
       {
-        group_name: Sequelize.STRING,
+        name: Sequelize.STRING,
         description: Sequelize.STRING,
         is_private: Sequelize.BOOLEAN,
         group_avatar_id: Sequelize.STRING,
@@ -50,10 +50,10 @@ class Group extends Model {
       as: 'requesters',
     });
 
-    this.hasOne(models.File, {
-      foreignKey: 'id',
+    this.belongsTo(models.File, {
+      foreignKey: 'group_avatar_id',
       through: 'files',
-      as: 'avatar_group',
+      as: 'avatar',
     });
   }
 }
