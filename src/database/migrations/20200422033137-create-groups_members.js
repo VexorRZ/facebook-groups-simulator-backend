@@ -8,6 +8,7 @@ module.exports = {
         unique: true,
         primaryKey: true,
       },
+
       member_id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4(),

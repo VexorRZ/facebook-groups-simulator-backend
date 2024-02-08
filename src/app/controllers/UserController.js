@@ -1,5 +1,6 @@
 import * as Yup from 'yup';
 import User from '../models/User';
+import Queue from '../lib/Queue';
 
 import { v2 as cloudinary } from 'cloudinary';
 import { v4 as uuidv4 } from 'uuid';
@@ -41,6 +42,8 @@ class UserController {
         password,
         permitted_to_add_in_groups: true,
       });
+
+      Queue.add({ userCreated });
 
       return res.status(201).json(userCreated);
     } catch (err) {

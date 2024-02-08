@@ -49,9 +49,11 @@ class GroupController {
         group_avatar_id: newFile.id,
       });
 
-      //    const user = await User.findByPk(req.userId);
+      const user = await User.findByPk(req.userId);
 
-      // await user.addGroup(groupCreated);
+      await user.addGroup(groupCreated, {
+        through: { id: uuidv4() },
+      });
 
       return res.json({
         image: response,
@@ -63,7 +65,7 @@ class GroupController {
         avatar: response.url,
       });
     } catch (err) {
-      return next(err);
+      return res.status(400).send(err);
     }
   }
 
@@ -186,20 +188,26 @@ class GroupController {
     const group = await Group.findByPk(group_id, {
       attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
 
-      include: {
-        association: 'topics',
-        attributes: ['id', 'name', 'author_id'],
-        order: ['createdAt'],
-        size: size,
-        page: page,
-
-        include: {
-          association: 'comments',
-          attributes: ['id', 'author_id', 'body'],
+      include: [
+        {
+          association: 'members',
+          attributes: ['id', 'name'],
+        },
+        {
+          association: 'topics',
+          attributes: ['id', 'name', 'author_id'],
+          order: ['createdAt'],
           size: size,
           page: page,
+
+          include: {
+            association: 'comments',
+            attributes: ['id', 'author_id', 'body'],
+            size: size,
+            page: page,
+          },
         },
-      },
+      ],
     });
 
     const numberOfTopicsCount = await Group.findByPk(group_id, {
