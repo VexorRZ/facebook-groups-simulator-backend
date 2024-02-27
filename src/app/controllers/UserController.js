@@ -32,10 +32,10 @@ class UserController {
       if (userExists) {
         return res.status(400).json({ error: 'User already exists' });
       }
-      const { name, surname, email, password } = req.body;
+      const { id, name, surname, email, password } = req.body;
 
       const userCreated = await User.create({
-        id: uuidv4(),
+        id,
         name,
         surname,
         email,

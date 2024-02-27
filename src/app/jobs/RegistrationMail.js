@@ -8,7 +8,7 @@ export default {
       from: 'queirozrafael348@gmail.com',
       to: ` ${user.email}>`,
       subject: 'Cadastro de usuário',
-      html: `Olá, ${user.name}, isso é um teste`,
+      html: `Olá, ${user.name}, isso é um segundo teste`,
     });
   },
 };

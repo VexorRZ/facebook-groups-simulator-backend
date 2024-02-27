@@ -2,10 +2,11 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('groups', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4(),
+        type: Sequelize.INTEGER,
+        //  defaultValue: Sequelize.STRING(),
         allowNull: false,
         primaryKey: true,
+        autoIncrement: true,
       },
       name: {
         type: Sequelize.STRING,
@@ -23,8 +24,9 @@ module.exports = {
       },
 
       group_avatar_id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4(),
+        type: Sequelize.INTEGER,
+        // type: Sequelize.UUID,
+        // defaultValue: Sequelize.STRING(),
         references: { model: 'files', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',
@@ -32,8 +34,9 @@ module.exports = {
       },
 
       owner_id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4(),
+        type: Sequelize.INTEGER,
+        // type: Sequelize.UUID,
+        // defaultValue: Sequelize.UUIDV4(),
         allowNull: false,
         references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',

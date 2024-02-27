@@ -2,9 +2,9 @@ module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('files', {
       id: {
-        type: Sequelize.UUID,
-        defaultValue: Sequelize.UUIDV4(),
+        type: Sequelize.INTEGER,
         allowNull: false,
+        autoIncrement: true,
         primaryKey: true,
       },
 

@@ -1,4 +1,4 @@
-import 'dotenv/config';
+require('dotenv').config();
 
 import Queue from './app/lib/Queue';
 import RegistrationMail from './app/jobs/RegistrationMail';

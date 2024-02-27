@@ -1,4 +1,7 @@
-export default {
-  host: 'us1-welcome-foxhound-41375.upstash.io',
-  port: 41375,
-};
+require('dotenv').config();
+import { createClient } from 'redis';
+
+const client = createClient({
+  url: process.env.UPSTASH_REDIS_URL,
+});
+export default client;

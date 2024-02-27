@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import Topic from '../models/Topic';
 import Group from '../models/Group';
-
+import { v4 as uuidv4 } from 'uuid';
 class TopicController {
   async create(req, res) {
     const { group_id } = req.params;
@@ -37,10 +37,11 @@ class TopicController {
       });
 
     const createdTopic = await Topic.create({
+      id: uuidv4(),
       author_id: req.userId,
       group_id: group.id,
       name,
-      is_closed,
+      is_closed: false,
     });
 
     return res.status(201).json(createdTopic);

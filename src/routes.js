@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { Router } from 'express';
 
+import SendMailController from './app/controllers/SendMailController';
+
 import UserController from './app/controllers/UserController';
 import SessionController from './app/controllers/SessionController';
 import GroupController from './app/controllers/GroupController';
@@ -24,6 +26,7 @@ routes.post('/sessions', SessionController.store);
 
 // users routes
 routes.post('/users', UserController.store);
+routes.post('/mail', SendMailController.sendmail);
 
 routes.use(authMiddleware);
 

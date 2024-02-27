@@ -1,8 +1,7 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.addColumn('users', 'user_avatar_id', {
-      type: Sequelize.UUID,
-      defaultValue: Sequelize.UUIDV4(),
+      type: Sequelize.INTEGER,
       references: { model: 'files', key: 'id' },
       onUpdate: 'CASCADE',
       onDelete: 'SET NULL',
