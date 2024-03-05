@@ -43,8 +43,6 @@ class UserController {
         permitted_to_add_in_groups: true,
       });
 
-      Queue.add({ userCreated });
-
       return res.status(201).json(userCreated);
     } catch (err) {
       console.log(err);

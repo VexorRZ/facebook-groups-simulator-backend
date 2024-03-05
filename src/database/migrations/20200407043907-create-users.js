@@ -29,7 +29,14 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-
+      password_reset_token: {
+        type: Sequelize.STRING,
+        select: false,
+      },
+      password_reset_expires: {
+        type: Sequelize.DATE,
+        select: false,
+      },
       created_at: {
         type: Sequelize.DATE,
         allowNull: false,

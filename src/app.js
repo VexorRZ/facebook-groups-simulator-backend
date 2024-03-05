@@ -5,6 +5,7 @@ import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import routes from './routes';
+import bodyParser from 'body-parser';
 
 import './database';
 
@@ -22,6 +23,7 @@ class App {
       })
     );
     this.server.use(express.json());
+    this.server.use(bodyParser.json());
 
     this.server.use(
       '/files',

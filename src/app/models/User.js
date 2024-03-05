@@ -1,6 +1,7 @@
 import { Model, Sequelize } from 'sequelize';
 
 import bcrypt from 'bcryptjs';
+import { STRING } from 'sequelize';
 
 class User extends Model {
   static init(sequelize) {
@@ -13,6 +14,14 @@ class User extends Model {
         user_avatar_id: Sequelize.STRING,
         password: Sequelize.VIRTUAL,
         password_hash: Sequelize.STRING,
+        password_reset_token: {
+          type: Sequelize.STRING,
+          select: false,
+        },
+        password_reset_expires: {
+          type: Sequelize.DATE,
+          select: false,
+        },
       },
       {
         sequelize,

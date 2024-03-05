@@ -23,12 +23,13 @@ const routes = new Router();
 
 // Session Routes
 routes.post('/sessions', SessionController.store);
+routes.get('/reset_password/:id/:token', SessionController.resetPassword);
+routes.post('/forgot_password', SessionController.forgotPassword);
+routes.post('/reset_password_confirm', SessionController.confirmResetPassword);
 
 // users routes
 routes.post('/users', UserController.store);
 routes.post('/mail', SendMailController.sendmail);
-
-routes.use(authMiddleware);
 
 //files routes
 routes.patch(
