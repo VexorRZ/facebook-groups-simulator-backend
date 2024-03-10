@@ -5,9 +5,9 @@ class File extends Model {
   static init(sequelize) {
     super.init(
       {
+        public_id: Sequelize.STRING,
         name: Sequelize.STRING,
         path: Sequelize.STRING,
-        public_id: Sequelize.STRING,
         url: {
           type: Sequelize.VIRTUAL,
           get() {

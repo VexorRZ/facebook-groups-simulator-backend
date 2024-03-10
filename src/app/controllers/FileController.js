@@ -1,6 +1,5 @@
 import File from '../models/File';
 import User from '../models/User';
-import Group from '../models/Group';
 import { v2 as cloudinary } from 'cloudinary';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,14 +11,13 @@ class SessionController {
   async store(req, res) {
     try {
       const { path } = req.file;
-      const { group_id } = req.params;
 
       const response = await cloudinary.uploader.upload(path, {
         folder: process.env.IMAGES_FOLDER,
       });
 
       const isMember = await User.findOne({
-        where: { id: req.userId },
+        where: { id: 1 },
         include: [
           {
             association: 'avatar',
@@ -37,6 +35,7 @@ class SessionController {
       }
 
       console.log(getFile);
+
       const newFile = await File.create({
         id: uuidv4(),
         public_id: response.public_id,

@@ -24,9 +24,8 @@ module.exports = {
       },
 
       group_avatar_id: {
-        type: Sequelize.INTEGER,
-        // type: Sequelize.UUID,
-        // defaultValue: Sequelize.STRING(),
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
         references: { model: 'files', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'SET NULL',

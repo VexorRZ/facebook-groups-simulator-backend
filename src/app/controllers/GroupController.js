@@ -12,7 +12,7 @@ CloudiNaryConfig;
 class GroupController {
   async create(req, res, next) {
     try {
-      const { name, is_private, description } = req.body;
+      const { id, name, is_private, description } = req.body;
       const { path } = req.file;
       const schema = Yup.object().shape({
         name: Yup.string().required(),
@@ -41,7 +41,7 @@ class GroupController {
       });
 
       const groupCreated = await Group.create({
-        id: uuidv4(),
+        id,
         name,
         description,
         is_private,
@@ -51,9 +51,7 @@ class GroupController {
 
       const user = await User.findByPk(req.userId);
 
-      await user.addGroup(groupCreated, {
-        through: { id: uuidv4() },
-      });
+      await user.addGroup(groupCreated);
 
       return res.json({
         image: response,
@@ -65,6 +63,7 @@ class GroupController {
         avatar: response.url,
       });
     } catch (err) {
+      console.log(err);
       return res.status(400).send(err);
     }
   }
@@ -88,7 +87,7 @@ class GroupController {
         },
         {
           association: 'topics',
-          attributes: ['name'],
+          attributes: ['name', 'id'],
           include: {
             association: 'author',
             attributes: ['name', 'id'],

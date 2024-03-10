@@ -2,49 +2,56 @@ import * as Yup from 'yup';
 import Topic from '../models/Topic';
 import Group from '../models/Group';
 import { v4 as uuidv4 } from 'uuid';
+import { id } from 'date-fns/locale';
 class TopicController {
   async create(req, res) {
     const { group_id } = req.params;
-    const { name, is_closed } = req.body;
-    const schema = Yup.object().shape({
-      name: Yup.string().required(),
-      is_closed: Yup.boolean().required(),
-    });
+    const { name, is_closed, id } = req.body;
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
-    }
-
-    const group = await Group.findByPk(group_id);
-    if (!group) return res.status(400).json({ error: 'group does not exists' });
-
-    const isMember = await Group.findOne({
-      where: { id: group_id },
-      include: [
-        {
-          association: 'members',
-          attributes: ['id'],
-          where: {
-            id: req.userId,
-          },
-        },
-      ],
-    });
-
-    if (!isMember)
-      return res.status(401).json({
-        error: "Can't create topics. You are not a member of this group",
+    try {
+      const schema = Yup.object().shape({
+        name: Yup.string().required(),
+        is_closed: Yup.boolean().required(),
       });
 
-    const createdTopic = await Topic.create({
-      id: uuidv4(),
-      author_id: req.userId,
-      group_id: group.id,
-      name,
-      is_closed: false,
-    });
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' });
+      }
 
-    return res.status(201).json(createdTopic);
+      const group = await Group.findByPk(group_id);
+      if (!group)
+        return res.status(400).json({ error: 'group does not exists' });
+
+      const isMember = await Group.findOne({
+        where: { id: group_id },
+        include: [
+          {
+            association: 'members',
+            attributes: ['id'],
+            where: {
+              id: req.userId,
+            },
+          },
+        ],
+      });
+
+      if (!isMember)
+        return res.status(401).json({
+          error: "Can't create topics. You are not a member of this group",
+        });
+
+      const createdTopic = await Topic.create({
+        id,
+        author_id: req.userId,
+        group_id: group.id,
+        name,
+        is_closed: false,
+      });
+
+      return res.status(201).json(createdTopic);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async index(req, res) {
@@ -109,7 +116,8 @@ class TopicController {
       ],
     });
 
-    const { page = 1, size = 10 } = req.query;
+    const { page, size } = req.query;
+
     const groupTopics = await Group.findByPk(group_id, {
       attributes: ['id', 'name'],
       include: {
@@ -127,10 +135,14 @@ class TopicController {
             attributes: ['id', 'body', 'createdAt'],
             order: ['createdAt'],
             limit: size,
-            offset: page * size,
+            offset: Number(page * size) - Number(size),
             include: {
               association: 'author',
               attributes: ['id', 'name'],
+              include: {
+                association: 'avatar',
+                attributes: ['path'],
+              },
             },
           },
         ],

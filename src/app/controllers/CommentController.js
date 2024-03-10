@@ -113,7 +113,7 @@ class CommentController {
     });
 
     if (!commentsExists)
-      return res.status(4010).json({ error: 'No Comments was found' });
+      return res.status(401).json({ error: 'No Comments was found' });
 
     return res.status(200).json(commentsExists);
   }
