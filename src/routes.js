@@ -65,7 +65,7 @@ routes.put(
   multer(multerConfig).single('file'),
   UserController.update
 );
-routes.delete('/users/:user_id,', UserController.delete);
+routes.delete('/users/:user_id', UserController.delete);
 
 // groups routes
 routes.post(

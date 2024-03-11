@@ -17,7 +17,7 @@ class SessionController {
       });
 
       const isMember = await User.findOne({
-        where: { id: 1 },
+        where: { id: req.userId },
         include: [
           {
             association: 'avatar',
@@ -25,6 +25,7 @@ class SessionController {
         ],
       });
 
+      console.log(isMember);
       const getFile = await File.findOne({
         where: { id: isMember.dataValues.user_avatar_id },
       });
@@ -56,6 +57,7 @@ class SessionController {
 
       return res.status(201).send(newFile);
     } catch (err) {
+      console.log(err);
       return res.status(400).send(err);
     }
   }

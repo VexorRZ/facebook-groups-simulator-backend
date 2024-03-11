@@ -159,19 +159,25 @@ class UserController {
 
   async delete(req, res) {
     const { user_id } = req.params;
-    const findUser = await User.findOne({ where: { id: user_id } });
 
-    if (findUser.id !== req.userId)
+    try {
+      const findUser = await User.findOne({ where: { id: user_id } });
+
+      if (findUser.id !== req.userId)
+        return res
+          .status(401)
+          .json({ error: 'Invalid action. You are not this user' });
+
+      await User.destroy({
+        where: { id: req.userId },
+      });
+
       return res
-        .status(401)
-        .json({ error: 'Invalid action. You are not this user' });
-    await User.destroy({
-      where: { id: req.userId },
-    });
-
-    return res
-      .status(200)
-      .json({ msg: 'your account was successfully removed' });
+        .status(200)
+        .json({ msg: 'your account was successfully deleted' });
+    } catch (err) {
+      console.log(err);
+    }
   }
 }
 
