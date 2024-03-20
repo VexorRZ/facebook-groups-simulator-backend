@@ -11,7 +11,7 @@ class GroupRequestEntryController {
 
       const group = await Group.findByPk(group_id);
 
-      if (!group) return res.status(401).json({ error: 'Group do not exists' });
+      if (!group) return res.status(404).json({ error: 'Group do not exists' });
 
       const isBanned = await Group.findOne({
         where: { id: group_id },
@@ -22,7 +22,7 @@ class GroupRequestEntryController {
         },
       });
       if (isBanned)
-        return res.status(401).json({
+        return res.status(403).json({
           error:
             'You are not allowed to request access. You have been banned from that group.',
         });
@@ -40,8 +40,6 @@ class GroupRequestEntryController {
           .status(401)
           .json({ error: 'You already are a member of this group' });
 
-      console.log('((((CHEGUEI AQUI))))', group.is_private);
-
       if (group.is_private) {
         const requestEntry = await Group.findOne({
           where: { id: group_id },
@@ -52,14 +50,15 @@ class GroupRequestEntryController {
           },
         });
         if (requestEntry)
-          return res.status(401).json({
+          return res.status(406).json({
             error:
               'You have already applied to join this group. Wait for an administrator to accept your request',
           });
 
         const createRequestEntry = await group.addRequester(user);
 
-        return res.status(202).json({
+        console.log('((((CHEGUEI AQUI))))');
+        return res.status(201).json({
           msg: 'your request is already sent. Wait until an administrator of this group accept your request',
           request: createRequestEntry.id,
           requester: createRequestEntry.requester_id,

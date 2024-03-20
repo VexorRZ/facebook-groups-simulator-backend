@@ -64,7 +64,7 @@ class User extends Model {
     this.belongsToMany(models.Group, {
       foreignKey: 'banned_id',
       through: 'groups_bans',
-      as: 'banned of groups',
+      as: 'banned_of_groups',
     });
 
     this.hasMany(models.Topic, {

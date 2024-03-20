@@ -79,11 +79,20 @@ class GroupController {
         },
         {
           association: 'moderators',
-          attributes: ['name'],
+          attributes: ['id', 'name'],
         },
         {
           association: 'avatar',
           attributes: ['id', 'path'],
+        },
+
+        {
+          association: 'requesters',
+          attributes: ['id'],
+        },
+        {
+          association: 'bans',
+          attributes: ['id'],
         },
         {
           association: 'topics',
@@ -103,7 +112,7 @@ class GroupController {
         },
         {
           association: 'members',
-          attributes: ['name'],
+          attributes: ['id', 'name'],
         },
       ],
     });
@@ -147,10 +156,15 @@ class GroupController {
         }
       );
     } else {
+      const { page, size } = req.query;
+
       includeStatement.push(
         {
           association: 'topics',
           attributes: ['id', 'name', 'author_id'],
+          order: ['createdAt'],
+          limit: size,
+          offset: Number(page * size) - Number(size),
 
           include: [
             {
@@ -176,37 +190,40 @@ class GroupController {
         {
           association: 'members',
           attributes: ['id', 'name'],
+        },
+        {
+          association: 'requesters',
+          attributes: ['id'],
+        },
+        {
+          association: 'bans',
+          attributes: ['id'],
         }
       );
     }
-    let { page, size } = req.query;
-
-    page = Number(page);
-    size = Number(size);
 
     const group = await Group.findByPk(group_id, {
       attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
+      include: includeStatement,
 
-      include: [
-        {
-          association: 'members',
-          attributes: ['id', 'name'],
-        },
-        {
-          association: 'topics',
-          attributes: ['id', 'name', 'author_id'],
-          order: ['createdAt'],
-          size: size,
-          page: page,
+      // include: [
+      //   {
+      //     association: 'members',
+      //     attributes: ['id', 'name'],
+      //   },
+      //   {
+      //     association: 'topics',
+      //     attributes: ['id', 'name', 'author_id'],
+      //     order: ['createdAt'],
+      //     limit: size,
+      //     offset: Number(page * size) - Number(size),
 
-          include: {
-            association: 'comments',
-            attributes: ['id', 'author_id', 'body'],
-            size: size,
-            page: page,
-          },
-        },
-      ],
+      //     include: {
+      //       association: 'comments',
+      //       attributes: ['id', 'author_id', 'body'],
+      //     },
+      //   },
+      // ],
     });
 
     const numberOfTopicsCount = await Group.findByPk(group_id, {
