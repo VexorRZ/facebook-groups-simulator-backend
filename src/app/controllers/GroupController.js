@@ -124,119 +124,143 @@ class GroupController {
 
   async show(req, res) {
     const { group_id } = req.params;
-    const groupExists = await Group.findByPk(group_id);
 
-    if (!groupExists) return res.status(400).json('group do not exists');
+    try {
+      const groupExists = await Group.findByPk(group_id);
 
-    const isMember = await Group.findOne({
-      where: { id: group_id },
-      include: {
-        association: 'members',
-        where: { id: req.userId },
-        required: true,
-      },
-    });
+      if (!groupExists) return res.status(400).json('group do not exists');
 
-    const isOwner = await Group.findOne({
-      where: { id: group_id, owner_id: req.userId },
-      attributes: ['id'],
-    });
-
-    const includeStatement = [];
-
-    if (!isMember && groupExists.is_private) {
-      includeStatement.push(
-        {
-          association: 'administrator',
-          attributes: ['id', 'name'],
-        },
-        {
-          association: 'moderators',
-          attributes: ['id', 'name'],
-        }
-      );
-    } else {
-      const { page, size } = req.query;
-
-      includeStatement.push(
-        {
-          association: 'topics',
-          attributes: ['id', 'name', 'author_id'],
-          order: ['createdAt'],
-          limit: size,
-          offset: Number(page * size) - Number(size),
-
-          include: [
-            {
-              association: 'author',
-              attributes: ['id', 'name'],
-            },
-
-            {
-              association: 'comments',
-              attributes: ['id', 'author_id', 'body'],
-            },
-          ],
-        },
-
-        {
-          association: 'administrator',
-          attributes: ['id', 'name'],
-        },
-        {
-          association: 'moderators',
-          attributes: ['id', 'name'],
-        },
-        {
+      const isMember = await Group.findOne({
+        where: { id: group_id },
+        include: {
           association: 'members',
-          attributes: ['id', 'name'],
+          where: { id: req.userId },
+          required: true,
         },
-        {
-          association: 'requesters',
-          attributes: ['id'],
-        },
-        {
-          association: 'bans',
-          attributes: ['id'],
-        }
-      );
+      });
+
+      const isOwner = await Group.findOne({
+        where: { id: group_id, owner_id: req.userId },
+        attributes: ['id'],
+      });
+
+      const includeStatement = [];
+
+      if (!isMember && groupExists.is_private) {
+        includeStatement.push(
+          {
+            association: 'administrator',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'moderators',
+            attributes: ['id', 'name'],
+          }
+        );
+      } else {
+        const { page, size } = req.query;
+
+        includeStatement.push(
+          {
+            association: 'topics',
+            attributes: ['id', 'name', 'author_id'],
+
+            order: [['createdAt', 'DESC']],
+            limit: size,
+            offset: Number(page * size) - Number(size),
+
+            include: [
+              {
+                association: 'author',
+                attributes: ['id', 'name'],
+              },
+
+              {
+                association: 'comments',
+                attributes: ['id', 'author_id', 'body'],
+              },
+            ],
+          },
+          {
+            association: 'avatar',
+            attributes: ['id', 'path'],
+          },
+
+          {
+            association: 'administrator',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'moderators',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'members',
+            attributes: ['id', 'name'],
+            order: ['createdAt'],
+            // limit: size,
+            // offset: Number(page * size) - Number(size),
+            include: {
+              association: 'avatar',
+              attributes: ['path'],
+            },
+          },
+          {
+            association: 'requesters',
+            attributes: ['id'],
+          },
+          {
+            association: 'bans',
+            attributes: ['id'],
+          }
+        );
+      }
+
+      const group = await Group.findByPk(group_id, {
+        attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
+        include: includeStatement,
+
+        // include: [
+        //   {
+        //     association: 'members',
+        //     attributes: ['id', 'name'],
+        //   },
+        //   {
+        //     association: 'topics',
+        //     attributes: ['id', 'name', 'author_id'],
+        //     order: ['createdAt'],
+        //     limit: size,
+        //     offset: Number(page * size) - Number(size),
+
+        //     include: {
+        //       association: 'comments',
+        //       attributes: ['id', 'author_id', 'body'],
+        //     },
+        //   },
+        // ],
+      });
+
+      const numberOfTopicsCount = await Group.findByPk(group_id, {
+        attributes: ['id', 'name', 'is_private'],
+        include: [
+          {
+            association: 'topics',
+            attributes: ['id', 'name', 'author_id'],
+          },
+          {
+            association: 'members',
+            attributes: ['id', 'name'],
+          },
+        ],
+      });
+
+      const numberOfTopics = numberOfTopicsCount.topics.length;
+      const numberOfMembers = numberOfTopicsCount.members.length;
+
+      return res.json({ group, numberOfTopics, isOwner, numberOfMembers });
+    } catch (err) {
+      console.log(err);
     }
-
-    const group = await Group.findByPk(group_id, {
-      attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
-      include: includeStatement,
-
-      // include: [
-      //   {
-      //     association: 'members',
-      //     attributes: ['id', 'name'],
-      //   },
-      //   {
-      //     association: 'topics',
-      //     attributes: ['id', 'name', 'author_id'],
-      //     order: ['createdAt'],
-      //     limit: size,
-      //     offset: Number(page * size) - Number(size),
-
-      //     include: {
-      //       association: 'comments',
-      //       attributes: ['id', 'author_id', 'body'],
-      //     },
-      //   },
-      // ],
-    });
-
-    const numberOfTopicsCount = await Group.findByPk(group_id, {
-      attributes: ['id', 'name', 'is_private'],
-      include: {
-        association: 'topics',
-        attributes: ['id', 'name', 'author_id'],
-      },
-    });
-
-    const numberOfTopics = numberOfTopicsCount.topics.length;
-
-    return res.json({ group, numberOfTopics, isOwner });
   }
 
   async update(req, res) {

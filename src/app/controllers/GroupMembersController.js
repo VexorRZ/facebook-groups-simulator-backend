@@ -98,12 +98,8 @@ class GroupMembersController {
         .status(401)
         .json({ error: 'Private group. Only a member can see the content' });
 
-    const groupUsers = await Group.findByPk(group_id, {
-      include: {
-        association: 'members',
-        attributes: ['id', 'name'],
-      },
-    });
+    const { page, size } = req.query;
+    const groupUsers = await Group.findByPk(group_id, {});
 
     if (!groupUsers)
       return res.status(400).json({ error: 'No users were found.' });
