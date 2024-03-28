@@ -1,5 +1,6 @@
 import User from '../models/User';
 import Group from '../models/Group';
+import GroupMembers from '../models/GroupMembers';
 
 class GroupMembersController {
   async create(req, res) {
@@ -99,7 +100,23 @@ class GroupMembersController {
         .json({ error: 'Private group. Only a member can see the content' });
 
     const { page, size } = req.query;
-    const groupUsers = await Group.findByPk(group_id, {});
+    // const groupUsers = await GroupMembers.findAndCountAll({
+    //   where: { group_id: group_id },
+    //   include: {
+    //     association: 'members',
+    //     attributes: ['id', 'name'],
+    //     order: ['createdAt'],
+    //     limit: size,
+    //     offset: Number(page * size) - Number(size),
+    //   },
+    // });
+
+    const groupUsers = await GroupMembers.findAndCountAll({
+      where: { group_id: group_id },
+
+      limit: size,
+      offset: Number(page * size) - Number(size),
+    });
 
     if (!groupUsers)
       return res.status(400).json({ error: 'No users were found.' });

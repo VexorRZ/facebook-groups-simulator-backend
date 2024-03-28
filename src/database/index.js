@@ -6,8 +6,9 @@ import File from '../app/models/File';
 import Group from '../app/models/Group';
 import Topic from '../app/models/Topic';
 import Comment from '../app/models/Comment';
+import GroupMembers from '../app/models/GroupMembers';
 
-const models = [User, File, Group, Topic, Comment];
+const models = [User, File, Group, Topic, Comment, GroupMembers];
 
 class Database {
   constructor() {

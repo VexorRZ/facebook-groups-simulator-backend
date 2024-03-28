@@ -32,6 +32,8 @@ class Group extends Model {
       as: 'members',
     });
 
+    this;
+
     this.belongsToMany(models.User, {
       foreignKey: 'group_id',
       through: 'groups_bans',
