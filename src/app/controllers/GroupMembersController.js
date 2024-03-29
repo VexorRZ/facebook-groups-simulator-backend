@@ -89,6 +89,7 @@ class GroupMembersController {
       where: { id: group_id },
       include: {
         association: 'members',
+
         where: { id: req.userId },
         required: true,
       },
@@ -100,22 +101,24 @@ class GroupMembersController {
         .json({ error: 'Private group. Only a member can see the content' });
 
     const { page, size } = req.query;
-    // const groupUsers = await GroupMembers.findAndCountAll({
-    //   where: { group_id: group_id },
-    //   include: {
-    //     association: 'members',
-    //     attributes: ['id', 'name'],
-    //     order: ['createdAt'],
-    //     limit: size,
-    //     offset: Number(page * size) - Number(size),
-    //   },
-    // });
 
-    const groupUsers = await GroupMembers.findAndCountAll({
-      where: { group_id: group_id },
+    const groupUsers = await User.findAll({
+      attributes: ['id', 'name'],
 
       limit: size,
       offset: Number(page * size) - Number(size),
+
+      include: [
+        {
+          association: 'groups_is_member',
+          attributes: ['group_id'],
+          where: { group_id: group_id },
+        },
+        {
+          association: 'avatar',
+          attributes: ['path'],
+        },
+      ],
     });
 
     if (!groupUsers)
