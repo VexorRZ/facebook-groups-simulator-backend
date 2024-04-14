@@ -69,7 +69,10 @@ class GroupController {
   }
 
   async index(req, res) {
+    const { page, size } = req.query;
     const groups = await Group.findAll({
+      limit: size,
+      offset: Number(page * size) - Number(size),
       attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
       order: ['id'],
       include: [
@@ -181,6 +184,12 @@ class GroupController {
               },
             ],
           },
+
+          // {
+          //   association: 'members',
+          //   attributes: ['id', 'member_id'],
+          //   //where: { id: group_id },
+          // },
           {
             association: 'avatar',
             attributes: ['id', 'path'],
@@ -194,17 +203,17 @@ class GroupController {
             association: 'moderators',
             attributes: ['id', 'name'],
           },
-          {
-            association: 'members',
-            attributes: ['id', 'name'],
-            order: ['createdAt'],
-            // limit: size,
-            // offset: Number(page * size) - Number(size),
-            include: {
-              association: 'avatar',
-              attributes: ['path'],
-            },
-          },
+          // {
+          //   association: 'members',
+          //   attributes: ['id', 'name'],
+          //   order: ['createdAt'],
+          //   // limit: size,
+          //   // offset: Number(page * size) - Number(size),
+          //   include: {
+          //     association: 'avatar',
+          //     attributes: ['path'],
+          //   },
+          // },
           {
             association: 'requesters',
             attributes: ['id'],

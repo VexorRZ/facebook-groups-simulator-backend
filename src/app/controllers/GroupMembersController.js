@@ -80,51 +80,68 @@ class GroupMembersController {
 
   async index(req, res) {
     const { group_id } = req.params;
+    try {
+      const groupExists = await Group.findByPk(group_id);
+      if (!groupExists)
+        return res.status(400).json({ error: 'Group does not exists' });
 
-    const groupExists = await Group.findByPk(group_id);
-    if (!groupExists)
-      return res.status(400).json({ error: 'Group does not exists' });
+      const isMember = await Group.findOne({
+        where: { id: group_id },
+        include: {
+          association: 'members',
 
-    const isMember = await Group.findOne({
-      where: { id: group_id },
-      include: {
-        association: 'members',
-
-        where: { id: req.userId },
-        required: true,
-      },
-    });
-
-    if (!isMember && groupExists.is_private)
-      return res
-        .status(401)
-        .json({ error: 'Private group. Only a member can see the content' });
-
-    const { page, size } = req.query;
-
-    const groupUsers = await User.findAll({
-      attributes: ['id', 'name'],
-
-      limit: size,
-      offset: Number(page * size) - Number(size),
-
-      include: [
-        {
-          association: 'groups_is_member',
-          attributes: ['group_id'],
-          where: { group_id: group_id },
+          where: { id: req.userId },
+          required: true,
         },
-        {
-          association: 'avatar',
-          attributes: ['path'],
+      });
+
+      if (!isMember && groupExists.is_private)
+        return res
+          .status(401)
+          .json({ error: 'Private group. Only a member can see the content' });
+
+      const { page, size } = req.query;
+
+      // const groupUsers = await User.findAll({
+      //   attributes: ['id', 'name'],
+
+      //   limit: size,
+      //   offset: Number(page * size) - Number(size),
+
+      //   include: [
+      //     {
+      //       association: 'groups_is_member',
+      //       attributes: ['group_id'],
+      //       where: { group_id: group_id },
+      //     },
+      //     {
+      //       association: 'avatar',
+      //       attributes: ['id', 'path'],
+      //     },
+      //   ],
+      // });
+
+      const groupUsers = await Group.findByPk(group_id, {
+        attributes: ['id', 'name'],
+        include: {
+          limit: size,
+          page: Number(page * size) - Number(size),
+          association: 'members',
+          attributes: ['id', 'member_id'],
+          include: {
+            association: 'users',
+            atributes: ['name', 'id'],
+          },
         },
-      ],
-    });
+      });
+      console.log('chegou até aqui na API');
+      if (!groupUsers)
+        return res.status(400).json({ error: 'No users were found.' });
 
-    if (!groupUsers)
-      return res.status(400).json({ error: 'No users were found.' });
-
-    return res.status(200).json(groupUsers);
+      return res.status(200).json(groupUsers);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async show(req, res) {
@@ -158,7 +175,7 @@ class GroupMembersController {
 
     if (!groupUser) return res.status(400).json({ error: 'User not found.' });
 
-    return res.status(200).json(groupUser);
+    return res.status(200).json(groupUser.members);
   }
 
   async delete(req, res) {
