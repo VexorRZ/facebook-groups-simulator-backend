@@ -185,11 +185,16 @@ class GroupController {
             ],
           },
 
-          // {
-          //   association: 'members',
-          //   attributes: ['id', 'member_id'],
-          //   //where: { id: group_id },
-          // },
+          {
+            order: [['createdAt', 'DESC']],
+            //  offset: Number(page * size) - Number(size),
+            association: 'members',
+            attributes: ['id', 'name'],
+            include: {
+              association: 'avatar',
+              attributes: ['path'],
+            },
+          },
           {
             association: 'avatar',
             attributes: ['id', 'path'],
@@ -224,9 +229,9 @@ class GroupController {
           }
         );
       }
-
+      const { page, size } = req.query;
       const group = await Group.findByPk(group_id, {
-        attributes: ['id', 'name', 'is_private', 'group_avatar_id'],
+        offset: Number(page * size) - Number(size),
         include: includeStatement,
 
         // include: [

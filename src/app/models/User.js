@@ -55,9 +55,9 @@ class User extends Model {
       as: 'groups',
     });
 
-    // this.hasMany(models.GroupMembers, {
+    // this.hasMany(models.Group, {
     //   foreignKey: 'member_id',
-
+    //   through: 'groups_members',
     //   as: 'groups_is_member',
     // });
 
