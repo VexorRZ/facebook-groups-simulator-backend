@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgres://postgres.paviutxswcdmmbhcygiv:Empylatex45*@aws-0-sa-east-1.pooler.supabase.com:5432/postgres&connect_timeout=300"
+}
+
+model User {
+id Int  @id @unique @default(autoincrement())
+    name String
+        email String @unique
+        surname String
+        permitted_to_add_in_groups Boolean
+        user_avatar_id String
+        password String
+        password_hash String
+}
+
+model Group {
+  id Int @unique @default(autoincrement())
+       name String
+        description String
+        is_private Boolean
+        group_avatar_id String
+}
+
+model File {
+  id Int @unique @default(autoincrement())
+ public_id String
+        name String
+        path String
+}
+
+model Comment {
+   id Int @id @unique
+    body String
+        author_id Int
+        topic_id Int
+}
+
+
+model Topic {
+ id Int @id @unique
+   name String
+        is_closed Boolean
+}
