@@ -1,6 +1,5 @@
 import User from '../models/User';
 import Group from '../models/Group';
-import GroupMembers from '../models/GroupMembers';
 
 class GroupMembersController {
   async create(req, res) {
@@ -102,34 +101,20 @@ class GroupMembersController {
 
       const { page, size } = req.query;
 
-      const groupUsers = await User.findAll({
-        attributes: ['id', 'name'],
-
-        limit: size,
+      const groupUsers = await Group.findAndCountAll({
+        where: { id: group_id },
+        subQuery: false,
+        limit: Number(size),
         offset: Number(page * size) - Number(size),
-
         include: [
           {
-            association: 'groups_is_member',
-            attributes: ['group_id'],
-            where: { group_id: group_id },
+            association: 'members',
+            attributes: ['name'],
           },
         ],
       });
 
-      // const groupUsers = await Group.findByPk(group_id, {
-      //   attributes: ['id', 'name'],
-      //   separate: true,
-      //   include: {
-      //     limit: 1,
-      //     association: 'members',
-      //     attributes: ['id', 'name'],
-      //   },
-      // });
-      // console.log('chegou até aqui na API');
-      if (!groupUsers)
-        return res.status(400).json({ error: 'No users were found.' });
-
+      if (!groupUsers) return res.status(200).json(groupUsers);
       return res.status(200).json(groupUsers);
     } catch (err) {
       console.log(err);

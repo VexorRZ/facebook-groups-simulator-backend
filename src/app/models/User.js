@@ -1,7 +1,6 @@
 import { Model, Sequelize } from 'sequelize';
 
 import bcrypt from 'bcryptjs';
-import { STRING } from 'sequelize';
 
 class User extends Model {
   static init(sequelize) {
@@ -54,12 +53,6 @@ class User extends Model {
       through: 'groups_members',
       as: 'groups',
     });
-
-    // this.hasMany(models.Group, {
-    //   foreignKey: 'member_id',
-    //   through: 'groups_members',
-    //   as: 'groups_is_member',
-    // });
 
     this.belongsToMany(models.Group, {
       foreignKey: 'moderator_id',
