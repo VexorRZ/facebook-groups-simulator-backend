@@ -20,6 +20,10 @@ class Comment extends Model {
   static associate(models) {
     this.belongsTo(models.Topic, { foreignKey: 'topic_id', as: 'topic' });
     this.belongsTo(models.User, { foreignKey: 'author_id', as: 'author' });
+    this.hasMany(models.CommentLikes, {
+      foreignKey: 'comment_id',
+      as: 'commentLikes',
+    });
   }
 }
 

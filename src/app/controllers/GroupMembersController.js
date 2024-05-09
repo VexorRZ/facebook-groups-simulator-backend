@@ -106,16 +106,25 @@ class GroupMembersController {
         subQuery: false,
         limit: Number(size),
         offset: Number(page * size) - Number(size),
+        attributes: ['id'],
         include: [
           {
             association: 'members',
-            attributes: ['name'],
+            attributes: ['name', 'id'],
+            through: {
+              attributes: [],
+            },
+            include: {
+              association: 'avatar',
+              attributes: ['path'],
+            },
           },
         ],
       });
 
-      if (!groupUsers) return res.status(200).json(groupUsers);
-      return res.status(200).json(groupUsers);
+      // if (!groupUsers) return res.status(200).json(groupUsers);
+
+      return res.status(200).json(groupUsers.rows[0].members);
     } catch (err) {
       console.log(err);
     }

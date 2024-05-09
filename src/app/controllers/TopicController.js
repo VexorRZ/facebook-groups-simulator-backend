@@ -136,14 +136,23 @@ class TopicController {
             order: ['createdAt'],
             limit: size,
             offset: Number(page * size) - Number(size),
-            include: {
-              association: 'author',
-              attributes: ['id', 'name'],
-              include: {
-                association: 'avatar',
-                attributes: ['path'],
+            include: [
+              {
+                association: 'author',
+                attributes: ['id', 'name'],
+                include: {
+                  association: 'avatar',
+                  attributes: ['path'],
+                },
               },
-            },
+              {
+                association: 'commentLikes',
+                include: {
+                  association: 'author',
+                  attributes: ['id'],
+                },
+              },
+            ],
           },
         ],
       },

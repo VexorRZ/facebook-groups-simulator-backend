@@ -169,8 +169,6 @@ class GroupController {
             attributes: ['id', 'name', 'author_id'],
 
             order: [['createdAt', 'DESC']],
-            limit: size,
-            offset: Number(page * size) - Number(size),
 
             include: [
               {
@@ -186,13 +184,57 @@ class GroupController {
           },
 
           {
-            order: [['createdAt', 'DESC']],
-            //  offset: Number(page * size) - Number(size),
+            association: 'avatar',
+            attributes: ['id', 'path'],
+          },
+
+          {
+            association: 'administrator',
+            attributes: ['id', 'name'],
+          },
+          {
+            association: 'moderators',
+            attributes: ['id', 'name'],
+          },
+          {
             association: 'members',
             attributes: ['id', 'name'],
+            order: ['createdAt'],
             include: {
               association: 'avatar',
               attributes: ['path'],
+            },
+          },
+          {
+            association: 'requesters',
+            attributes: ['id'],
+          },
+          {
+            association: 'bans',
+            attributes: ['id'],
+          }
+        );
+      }
+      const { page, size } = req.query;
+      const group = await Group.findAndCountAll({
+        where: { id: group_id },
+        subQuery: false,
+        attributes: ['name', 'id', 'is_private'],
+        limit: Number(size),
+        offset: Number(page * size) - Number(size),
+
+        include: [
+          {
+            subQuery: true,
+            limit: Number(size),
+            offset: Number(page * size) - Number(size),
+            association: 'topics',
+            attributes: ['id', 'name', 'author_id'],
+            order: ['createdAt'],
+
+            include: {
+              association: 'comments',
+              attributes: ['id', 'author_id', 'body'],
             },
           },
           {
@@ -208,17 +250,15 @@ class GroupController {
             association: 'moderators',
             attributes: ['id', 'name'],
           },
-          // {
-          //   association: 'members',
-          //   attributes: ['id', 'name'],
-          //   order: ['createdAt'],
-          //   // limit: size,
-          //   // offset: Number(page * size) - Number(size),
-          //   include: {
-          //     association: 'avatar',
-          //     attributes: ['path'],
-          //   },
-          // },
+          {
+            association: 'members',
+            attributes: ['id', 'name'],
+            order: ['createdAt'],
+            include: {
+              association: 'avatar',
+              attributes: ['path'],
+            },
+          },
           {
             association: 'requesters',
             attributes: ['id'],
@@ -226,32 +266,8 @@ class GroupController {
           {
             association: 'bans',
             attributes: ['id'],
-          }
-        );
-      }
-      const { page, size } = req.query;
-      const group = await Group.findByPk(group_id, {
-        offset: Number(page * size) - Number(size),
-        include: includeStatement,
-
-        // include: [
-        //   {
-        //     association: 'members',
-        //     attributes: ['id', 'name'],
-        //   },
-        //   {
-        //     association: 'topics',
-        //     attributes: ['id', 'name', 'author_id'],
-        //     order: ['createdAt'],
-        //     limit: size,
-        //     offset: Number(page * size) - Number(size),
-
-        //     include: {
-        //       association: 'comments',
-        //       attributes: ['id', 'author_id', 'body'],
-        //     },
-        //   },
-        // ],
+          },
+        ],
       });
 
       const numberOfTopicsCount = await Group.findByPk(group_id, {
@@ -270,8 +286,8 @@ class GroupController {
 
       const numberOfTopics = numberOfTopicsCount.topics.length;
       const numberOfMembers = numberOfTopicsCount.members.length;
-
-      return res.json({ group, numberOfTopics, isOwner, numberOfMembers });
+      const groupData = group.rows;
+      return res.json({ groupData, numberOfTopics, isOwner, numberOfMembers });
     } catch (err) {
       console.log(err);
     }

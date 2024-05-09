@@ -7,7 +7,7 @@
     "dev": "npm-run-all -p dev:*",
     "dev:server": "nodemon src/server.js",
     "dev:queue": "nodemon src/queue.js",
-    "testfile": "nodemon src/app/controllers/test.js"
+    "dev:io": "nodemon src/websocket.js"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +35,7 @@
     "redis": "^4.6.12",
     "require-dir": "^1.2.0",
     "sequelize": "^6.37.3",
+    "socket.io": "^4.7.5",
     "uuid": "^9.0.0",
     "yup": "^0.28.3"
   },
