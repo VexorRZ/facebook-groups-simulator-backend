@@ -69,6 +69,8 @@ class GroupController {
   }
 
   async index(req, res) {
+    console.log('chegou aqui');
+
     const { page, size } = req.query;
     const groups = await Group.findAll({
       limit: size,

@@ -147,6 +147,7 @@ class TopicController {
               },
               {
                 association: 'commentLikes',
+                attributes: ['author_id', 'comment_id'],
                 include: {
                   association: 'author',
                   attributes: ['id'],

@@ -127,12 +127,11 @@ class UserController {
   async index(req, res) {
     const findUsers = await User.findAll({
       attributes: ['id', 'name', 'email', 'permitted_to_add_in_groups'],
-      order: ['id'],
+      order: [['created_at', 'DESC']],
       include: [
         {
           association: 'groups',
           attributes: ['id', 'name'],
-          order: ['name'],
         },
         {
           association: 'avatar',

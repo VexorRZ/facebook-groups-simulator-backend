@@ -1,7 +1,6 @@
 import Like from '../models/CommentsLikes';
-import User from '../models/User';
 
-class SessionController {
+class CommentLikesController {
   async store(req, res) {
     try {
       const { author_id, comment_id } = req.params;
@@ -26,6 +25,31 @@ class SessionController {
     }
   }
 
-  async delete(req, res) {}
+  async createOrUpdate(req, res) {
+    try {
+      const { author_id, comment_id } = req.params;
+
+      const likeExists = await Like.findOne({
+        where: { author_id: author_id, comment_id: comment_id },
+      });
+      console.log('chegou aqui no controller de commentários');
+      if (!likeExists) {
+        const createLike = await Like.create({
+          author_id: author_id,
+          comment_id: comment_id,
+        });
+
+        return res.status(201).json(createLike);
+      } else {
+        await Like.destroy({
+          where: { author_id: author_id, comment_id: comment_id },
+        });
+        return res.status(201).json();
+      }
+    } catch (err) {
+      console.log(err);
+      return res.status(400).json({ error: err });
+    }
+  }
 }
-export default new SessionController();
+export default new CommentLikesController();

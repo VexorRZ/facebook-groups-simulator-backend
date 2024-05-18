@@ -78,53 +78,51 @@ class GroupMembersController {
   }
 
   async index(req, res) {
-    const { group_id } = req.params;
+    //   const { group_id } = req.params;
     try {
-      const groupExists = await Group.findByPk(group_id);
-      if (!groupExists)
-        return res.status(400).json({ error: 'Group does not exists' });
+      // const groupExists = await Group.findByPk(group_id);
+      // if (!groupExists)
+      //   return res.status(400).json({ error: 'Group does not exists' });
 
-      const isMember = await Group.findOne({
-        where: { id: group_id },
-        include: {
-          association: 'members',
-
-          where: { id: req.userId },
-          required: true,
-        },
+      const GroupsOfMember = await Group.findAll({
+        // include: {
+        //   association: 'members',
+        //   where: { id: req.userId },
+        //   required: true,
+        // },
       });
 
-      if (!isMember && groupExists.is_private)
-        return res
-          .status(401)
-          .json({ error: 'Private group. Only a member can see the content' });
+      return res.status(201).json(GroupsOfMember);
 
-      const { page, size } = req.query;
+      // if (!isMember && groupExists.is_private)
+      //   return res
+      //     .status(401)
+      //     .json({ error: 'Private group. Only a member can see the content' });
 
-      const groupUsers = await Group.findAndCountAll({
-        where: { id: group_id },
-        subQuery: false,
-        limit: Number(size),
-        offset: Number(page * size) - Number(size),
-        attributes: ['id'],
-        include: [
-          {
-            association: 'members',
-            attributes: ['name', 'id'],
-            through: {
-              attributes: [],
-            },
-            include: {
-              association: 'avatar',
-              attributes: ['path'],
-            },
-          },
-        ],
-      });
+      // const { page, size } = req.query;
 
-      // if (!groupUsers) return res.status(200).json(groupUsers);
+      // const groupUsers = await Group.findAndCountAll({
+      //   where: { id: group_id },
+      //   subQuery: false,
+      //   limit: Number(size),
+      //   offset: Number(page * size) - Number(size),
+      //   attributes: ['id'],
+      //   include: [
+      //     {
+      //       association: 'members',
+      //       attributes: ['name', 'id'],
+      //       through: {
+      //         attributes: [],
+      //       },
+      //       include: {
+      //         association: 'avatar',
+      //         attributes: ['path'],
+      //       },
+      //     },
+      //   ],
+      // });
 
-      return res.status(200).json(groupUsers.rows[0].members);
+      // return res.status(200).json(groupUsers.rows[0].members);
     } catch (err) {
       console.log(err);
     }

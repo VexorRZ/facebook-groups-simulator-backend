@@ -13,6 +13,7 @@ import TopicController from './app/controllers/TopicController';
 import CommentController from './app/controllers/CommentController';
 import RequestEntryController from './app/controllers/GroupsRequestsEntrysController';
 import FileControler from './app/controllers/FileController';
+import CommentsLikesController from './app/controllers/CommentsLikesController';
 
 import authMiddleware from './app/middlewares/auth';
 import multer from 'multer';
@@ -96,7 +97,7 @@ routes.delete(
 // groupsMembers routes
 routes.post('/groupsmembers/:group_id/:user_id', GroupMembersController.create);
 routes.get('/groupsmembers/:group_id/:user_id', GroupMembersController.show);
-routes.get('/groupsmembers/:group_id', GroupMembersController.index);
+routes.get('/groupsmembers', GroupMembersController.index);
 routes.delete(
   '/groupsmembers/:group_id/:user_id',
   GroupMembersController.delete
@@ -139,6 +140,12 @@ routes.put(
 routes.delete(
   '/comments/:group_id/:topic_id/:comment_id',
   CommentController.delete
+);
+
+//CommentLikes routes
+routes.put(
+  '/comments_likes/:author_id/:comment_id',
+  CommentsLikesController.createOrUpdate
 );
 
 export default routes;
