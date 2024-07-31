@@ -34,11 +34,7 @@ routes.post('/mail', SendMailController.sendmail);
 
 routes.use(authMiddleware);
 //files routes
-routes.patch(
-  '/files',
-  multer(multerConfig).single('file'),
-  FileControler.store
-);
+routes.put('/files', multer(multerConfig).single('file'), FileControler.store);
 
 routes.patch(
   '/files_groups/:group_id',
@@ -59,7 +55,7 @@ routes.patch(
 );
 
 // users routes
-routes.get('/users', UserController.index);
+routes.get('/users/:name', UserController.index);
 routes.get('/users/:user_id', UserController.show);
 routes.put(
   '/users/:user_id',
@@ -77,7 +73,11 @@ routes.post(
 routes.get('/groups', GroupController.index);
 routes.get('/groups/:group_id', GroupController.show);
 routes.delete('/groups/:group_id', GroupController.delete);
-routes.put('/groups/:group_id', GroupController.update);
+routes.put(
+  '/groups/:group_id',
+  multer(multerConfig).single('file'),
+  GroupController.update
+);
 
 // groupsModerators routes
 routes.post(

@@ -1,4 +1,13 @@
 import Like from '../models/CommentsLikes';
+// import pusher from 'pusher';
+// require('dotenv').config();
+
+// let pusher = new Pusher({
+//   appId: process.env.PUSHER_APP_ID,
+//   key: process.env.PUSHER_APP_KEY,
+//   secret: process.env.PUSHER_APP_SECRET,
+//   cluster: process.env.PUSHER_APP_CLUSTER,
+// });
 
 class CommentLikesController {
   async store(req, res) {
@@ -27,6 +36,7 @@ class CommentLikesController {
 
   async createOrUpdate(req, res) {
     try {
+      console.log('chegou aqui');
       const { author_id, comment_id } = req.params;
 
       const likeExists = await Like.findOne({
@@ -38,6 +48,13 @@ class CommentLikesController {
           author_id: author_id,
           comment_id: comment_id,
         });
+
+        // pusher.trigger(
+        //   'comment-events',
+        //   'likeAction',
+        //   { action: 'Like', comment_id: comment_id },
+        //   req.body.socketId
+        // );
 
         return res.status(201).json(createLike);
       } else {

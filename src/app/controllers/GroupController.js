@@ -10,7 +10,7 @@ require('dotenv').config();
 CloudiNaryConfig;
 
 class GroupController {
-  async create(req, res, next) {
+  async create(req, res) {
     try {
       const { id, name, is_private, description } = req.body;
       const { path } = req.file;
@@ -69,8 +69,6 @@ class GroupController {
   }
 
   async index(req, res) {
-    console.log('chegou aqui');
-
     const { page, size } = req.query;
     const groups = await Group.findAll({
       limit: size,
@@ -296,53 +294,89 @@ class GroupController {
   }
 
   async update(req, res) {
-    const { group_id } = req.params;
-    const { name, is_private } = req.body;
+    try {
+      const { group_id } = req.params;
+      const { name, is_private } = req.body;
+      const { path } = req.file;
 
-    const schema = Yup.object().shape({
-      name: Yup.string(),
-      is_private: Yup.boolean(),
-    });
+      const response = await cloudinary.uploader.upload(path, {
+        folder: process.env.IMAGES_FOLDER,
+      });
 
-    if (!(await schema.isValid(req.body)))
-      return res.status(400).json({ error: 'validation fails' });
+      const isGroup = await Group.findOne({
+        where: { id: group_id },
+        include: [
+          {
+            association: 'avatar',
+          },
+        ],
+      });
 
-    const groupExists = await Group.findByPk(group_id);
-    if (!groupExists)
-      return res.status(400).json({ error: 'group do not exists' });
+      const getFile = await File.findOne({
+        where: { id: isGroup.dataValues.group_avatar_id },
+      });
 
-    const isOwner = await Group.findOne({
-      where: { id: group_id, owner_id: req.userId },
-    });
+      if (getFile) {
+        await File.destroy({ where: { id: getFile.dataValues.id } });
+        await cloudinary.uploader.destroy(getFile.dataValues.public_id);
+      }
 
-    const isModerator = await Group.findOne({
-      where: { id: group_id },
-      include: [
+      const newFile = await File.create({
+        id: uuidv4(),
+        public_id: response.public_id,
+        name: response.original_filename,
+        path: response.secure_url,
+      });
+
+      const schema = Yup.object().shape({
+        name: Yup.string(),
+        is_private: Yup.boolean(),
+      });
+
+      if (!(await schema.isValid(req.body)))
+        return res.status(400).json({ error: 'validation fails' });
+
+      const groupExists = await Group.findByPk(group_id);
+      if (!groupExists)
+        return res.status(400).json({ error: 'group do not exists' });
+
+      const isOwner = await Group.findOne({
+        where: { id: group_id, owner_id: req.userId },
+      });
+
+      const isModerator = await Group.findOne({
+        where: { id: group_id },
+        include: [
+          {
+            association: 'moderators',
+            where: { id: req.userId },
+          },
+        ],
+      });
+
+      if (!isOwner && !isModerator)
+        return res
+          .status(401)
+          .json({ error: 'Only the admin or moderators can update the group' });
+
+      await Group.update(
         {
-          association: 'moderators',
-          where: { id: req.userId },
+          name,
+          is_private,
+          group_avatar_id: newFile.id,
         },
-      ],
-    });
+        { where: { id: group_id } }
+      );
 
-    if (!isOwner && !isModerator)
-      return res
-        .status(401)
-        .json({ error: 'Only the admin or moderators can update the group' });
-
-    await Group.update(
-      {
+      return res.status(200).json({
+        message: 'group successfully updated',
         name,
         is_private,
-      },
-      { where: { id: group_id } }
-    );
-
-    return res.status(200).json({
-      message: 'group successfully updated',
-      name,
-      is_private,
-    });
+        avatar: newFile,
+      });
+    } catch (err) {
+      return res.status(400).json(err);
+    }
   }
 
   async delete(req, res) {

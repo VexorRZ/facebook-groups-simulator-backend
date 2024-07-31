@@ -6,6 +6,8 @@ import path from 'path';
 import cors from 'cors';
 import routes from './routes';
 import bodyParser from 'body-parser';
+import http from 'http';
+import { Server } from 'socket.io';
 
 import './database';
 
@@ -20,6 +22,9 @@ class App {
     this.server.use(
       cors({
         origin: 'http://localhost:3000',
+        credentials: true,
+        transports: ['websocket'],
+        rejectUnauthorized: false,
       })
     );
     this.server.use(express.json());

@@ -7,7 +7,7 @@ require('dotenv').config();
 
 CloudiNaryConfig;
 
-class SessionController {
+class FileController {
   async store(req, res) {
     try {
       const { path } = req.file;
@@ -25,7 +25,6 @@ class SessionController {
         ],
       });
 
-      console.log(isMember);
       const getFile = await File.findOne({
         where: { id: isMember.dataValues.user_avatar_id },
       });
@@ -34,8 +33,6 @@ class SessionController {
         await File.destroy({ where: { id: getFile.dataValues.id } });
         await cloudinary.uploader.destroy(getFile.dataValues.public_id);
       }
-
-      console.log(getFile);
 
       const newFile = await File.create({
         id: uuidv4(),
@@ -64,4 +61,4 @@ class SessionController {
 
   async delete(req, res) {}
 }
-export default new SessionController();
+export default new FileController();

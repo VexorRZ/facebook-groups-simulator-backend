@@ -8,7 +8,6 @@ class CommentController {
     try {
       const { group_id, topic_id } = req.params;
       const { body } = req.body;
-
       const schema = Yup.object().shape({
         body: Yup.string().required(),
       });

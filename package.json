@@ -5,9 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "npm-run-all -p dev:*",
-    "dev:server": "nodemon src/server.js",
-    "dev:queue": "nodemon src/queue.js",
-    "dev:io": "nodemon src/websocket.js"
+    "dev:server": "nodemon src/websocket.js",
+    "dev:queue": "nodemon src/queue.js"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +30,7 @@
     "nodemailer-express-handlebars": "^6.1.2",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
+    "pusher": "^5.2.0",
     "react-scripts": "^5.0.1",
     "redis": "^4.6.12",
     "require-dir": "^1.2.0",

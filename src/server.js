@@ -1,6 +1,6 @@
-import app from './app';
+import io from './app';
 
 const port = 3333;
-app.listen(port, () => {
+io.listen(port, () => {
   console.log(`Server listening the port ${port}.`);
 });

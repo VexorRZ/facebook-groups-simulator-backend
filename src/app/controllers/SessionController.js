@@ -9,47 +9,51 @@ import Queue from '../lib/Queue';
 
 class SessionController {
   async store(req, res) {
-    const schema = Yup.object().shape({
-      email: Yup.string().email().required(),
-      password: Yup.string().required(),
-    });
+    try {
+      const schema = Yup.object().shape({
+        email: Yup.string().email().required(),
+        password: Yup.string().required(),
+      });
 
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({ error: 'Validation fails' });
-    }
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({ error: 'Validation fails' });
+      }
 
-    const { email, password } = req.body;
-    const user = await User.findOne({
-      where: { email },
-      include: [
-        {
-          association: 'avatar',
-          attributes: ['id', 'path'],
+      const { email, password } = req.body;
+      const user = await User.findOne({
+        where: { email },
+        include: [
+          {
+            association: 'avatar',
+            attributes: ['id', 'path'],
+          },
+        ],
+      });
+
+      if (!user) {
+        return res.status(401).send({ msg: 'msg: User not found' });
+      }
+
+      if (!(await user.checkPassword(password))) {
+        return res.status(401).send({ msg: 'msg: Password does not match' });
+      }
+
+      const { id, name, avatar } = user;
+
+      return res.json({
+        user: {
+          id,
+          name,
+          email,
+          avatar,
+          token: jwt.sign({ id }, authConfig.secret, {
+            expiresIn: authConfig.expiresIn,
+          }),
         },
-      ],
-    });
-
-    if (!user) {
-      return res.status(401).send({ msg: 'msg: User not found' });
+      });
+    } catch (err) {
+      return console.log(err);
     }
-
-    if (!(await user.checkPassword(password))) {
-      return res.status(401).send({ msg: 'msg: Password does not match' });
-    }
-
-    const { id, name, avatar } = user;
-
-    return res.json({
-      user: {
-        id,
-        name,
-        email,
-        avatar,
-        token: jwt.sign({ id }, authConfig.secret, {
-          expiresIn: authConfig.expiresIn,
-        }),
-      },
-    });
   }
 
   async forgotPassword(req, res) {

@@ -1,9 +1,16 @@
+import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { username } from './config/database';
+import app from './app';
 
-const io = new Server({
+const httpServer = createServer(app);
+
+export const io = new Server(httpServer, {
   cors: {
     origin: 'http://localhost:3000',
+    methods: ['GET', 'POST'],
+    credentials: true,
+    transports: ['websocket'],
+    rejectUnauthorized: false,
   },
 });
 
@@ -23,15 +30,24 @@ const getUser = (username) => {
 };
 
 io.on('connection', (socket) => {
+  console.log();
+
   socket.on('newUser', (username) => {
     addNewUser(username, socket.id);
   });
 
-  io.emit('firstevent', 'hello this is test');
+  socket.on('sendNotification', ({ senderName, receiverName, type }) => {
+    console.log('chegou aqui no socket');
+    const receiver = getUser(receiverName);
+    io.to(receiver.socketId).emit('getNotification', {
+      senderName,
+      type,
+    });
+  });
 
   socket.on('disconnect', () => {
     removeUser(socket.id);
   });
 });
 
-io.listen(5000);
+httpServer.listen(3333);

@@ -5,6 +5,7 @@ import Queue from '../lib/Queue';
 import { v2 as cloudinary } from 'cloudinary';
 import { v4 as uuidv4 } from 'uuid';
 import CloudiNaryConfig from '../../config/cloudinaryConfig';
+import { Op } from 'sequelize';
 require('dotenv').config();
 
 CloudiNaryConfig;
@@ -125,23 +126,32 @@ class UserController {
   }
 
   async index(req, res) {
-    const findUsers = await User.findAll({
-      attributes: ['id', 'name', 'email', 'permitted_to_add_in_groups'],
-      order: [['created_at', 'DESC']],
-      include: [
-        {
-          association: 'groups',
-          attributes: ['id', 'name'],
-        },
-        {
-          association: 'avatar',
-          attributes: ['id', 'path'],
-        },
-      ],
-    });
-    if (!findUsers) return res.status(400).json({ error: 'No users found' });
+    const { name } = req.params;
 
-    return res.status(200).json(findUsers);
+    console.log('name', name);
+
+    try {
+      const findUsers = await User.findAll({
+        attributes: ['id', 'name', 'email', 'permitted_to_add_in_groups'],
+        order: [['created_at', 'DESC']],
+        where: {
+          name: {
+            [Op.like]: `%${name}%`,
+          },
+        },
+        include: [
+          {
+            association: 'avatar',
+            attributes: ['id', 'path'],
+          },
+        ],
+      });
+      if (!findUsers) return res.status(400).json({ error: 'No users found' });
+
+      return res.status(200).json(findUsers);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   async show(req, res) {
