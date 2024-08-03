@@ -12,8 +12,10 @@ CloudiNaryConfig;
 class GroupController {
   async create(req, res) {
     try {
+      console.log('__________request___________', req.body);
       const { id, name, is_private, description } = req.body;
       const { path } = req.file;
+
       const schema = Yup.object().shape({
         name: Yup.string().required(),
         is_private: Yup.boolean().required(),
