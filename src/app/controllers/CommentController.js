@@ -244,6 +244,7 @@ class CommentController {
   }
 
   async delete(req, res) {
+    console.log('------requserId-----', req.userId);
     const { group_id, topic_id, comment_id } = req.params;
 
     const groupExists = await Group.findByPk(group_id);
@@ -290,34 +291,38 @@ class CommentController {
       },
     });
 
-    const isAdministrator = await Group.findOne({
-      where: {
-        id: group_id,
-        owner_id: res.userId,
-      },
-    });
+    // const isAdministrator = await Group.findOne({
+    //   where: {
+    //     id: group_id,
+    //     owner_id: res.userId,
+    //   },
+    // });
 
-    const isModerator = await Group.findOne({
-      where: {
-        id: group_id,
-        include: [
-          {
-            association: 'moderators',
-            where: {
-              id: req.userId,
-            },
-          },
-        ],
-      },
-    });
+    // console.log('____typeOf_____', typeof req.userId);
 
-    if (!isAuthor && !isModerator && !isAdministrator)
+    // const isModerator = await Group.findOne({
+    //   where: {
+    //     id: group_id,
+    //     include: [
+    //       {
+    //         association: 'moderators',
+    //         where: {
+    //           moderator_id: req.userId,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // });
+
+    if (!isAuthor)
       return res.status(401).json({
         error:
           'Invalid action. Only the author of comment or the administrator and moderators of the group can delete a comment',
       });
 
-    await Comment.destroy(comment_id);
+    await Comment.destroy({
+      where: { id: comment_id },
+    });
 
     return res.status(200).json({ msg: 'comment successfully deleted' });
   }

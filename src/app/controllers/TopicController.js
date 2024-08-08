@@ -120,43 +120,50 @@ class TopicController {
 
     const groupTopics = await Group.findByPk(group_id, {
       attributes: ['id', 'name'],
-      include: {
-        association: 'topics',
-        where: { id: topic_id },
-        attributes: ['id', 'name'],
 
-        include: [
-          {
-            association: 'author',
-            attributes: ['id', 'name'],
-          },
-          {
-            association: 'comments',
-            attributes: ['id', 'body', 'createdAt'],
-            order: ['createdAt'],
-            limit: size,
-            offset: Number(page * size) - Number(size),
-            include: [
-              {
-                association: 'author',
-                attributes: ['id', 'name'],
-                include: {
-                  association: 'avatar',
-                  attributes: ['path'],
-                },
-              },
-              {
-                association: 'commentLikes',
-                attributes: ['author_id', 'comment_id'],
-                include: {
+      include: [
+        {
+          association: 'topics',
+          where: { id: topic_id },
+          attributes: ['id', 'name'],
+
+          include: [
+            {
+              association: 'author',
+              attributes: ['id', 'name'],
+            },
+            {
+              association: 'comments',
+              attributes: ['id', 'body', 'createdAt'],
+              order: ['createdAt'],
+              limit: size,
+              offset: Number(page * size) - Number(size),
+              include: [
+                {
                   association: 'author',
-                  attributes: ['id'],
+                  attributes: ['id', 'name'],
+                  include: {
+                    association: 'avatar',
+                    attributes: ['path'],
+                  },
                 },
-              },
-            ],
-          },
-        ],
-      },
+                {
+                  association: 'commentLikes',
+                  attributes: ['author_id', 'comment_id'],
+                  include: {
+                    association: 'author',
+                    attributes: ['id'],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          association: 'members',
+          attributes: ['id', 'name'],
+        },
+      ],
     });
 
     const groupTopicsTotalCount = await Group.findByPk(group_id, {
