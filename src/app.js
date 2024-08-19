@@ -6,8 +6,6 @@ import path from 'path';
 import cors from 'cors';
 import routes from './routes';
 import bodyParser from 'body-parser';
-import http from 'http';
-import { Server } from 'socket.io';
 
 import './database';
 

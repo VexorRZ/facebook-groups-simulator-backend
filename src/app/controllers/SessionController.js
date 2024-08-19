@@ -40,6 +40,7 @@ class SessionController {
 
       const { id, name, avatar } = user;
 
+      console.log('chegou aqui');
       return res.json({
         user: {
           id,
